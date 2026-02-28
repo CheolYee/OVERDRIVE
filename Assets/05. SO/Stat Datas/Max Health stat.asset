@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 890f1c10fb37415585ddc49def1df084, type: 3}
+  m_Name: Max Health stat
+  m_EditorClassIdentifier: 
+  <AssetIndex>k__BackingField: 3
+  <StatName>k__BackingField: "\uCD5C\uB300 \uCCB4\uB825"
+  <StatIcon>k__BackingField: {fileID: 4728418087347496062, guid: 0ce8bc1bfdcfd864a90f005a6a252555, type: 3}
+  <DisplayName>k__BackingField: MHP
+  <IsPercent>k__BackingField: 0
+  baseValue: 30
+  minValue: 1
+  maxValue: 99999
+  description: "\uCE90\uB9AD\uD130\uC758 \uCD5C\uB300 \uCCB4\uB825"

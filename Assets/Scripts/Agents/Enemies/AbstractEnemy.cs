@@ -1,0 +1,99 @@
+﻿using System;
+using Agents.Enemies.BT.Events;
+using CombatSystem;
+using Systems.AnimationSystems;
+using Unity.Behavior;
+using UnityEngine;
+
+namespace Agents.Enemies
+{
+    public abstract class AbstractEnemy : Agent
+    {
+        [field: SerializeField] public AttackConfigSO AttackConfig { get; private set; }
+        public BehaviorGraphAgent BTAgent { get; private set; }
+        public IMover Mover { get; private set; }
+        public IRenderer Renderer { get; private set; }
+        public ISkillModule SkillModule { get; private set; }
+        
+        private BlackboardVariable<StateChannel> _stateChannel;
+
+        protected override void InitializeComponents()
+        {
+            base.InitializeComponents();
+            BTAgent = GetComponent<BehaviorGraphAgent>();
+            Debug.Assert(BTAgent != null, $"{gameObject.name} is not attached to BTAgent");
+
+            Mover = GetModule<IMover>();
+            Renderer = GetModule<IRenderer>();
+            SkillModule = GetModule<ISkillModule>();
+            
+            Debug.Assert(Mover != null, $"{gameObject.name} is not attached to mover");
+            Debug.Assert(Renderer != null, $"{gameObject.name} is not attached to renderer");
+            Debug.Assert(Renderer != null, $"{gameObject.name} is not attached to Skill Module");
+        }
+        protected override void Start()
+        {
+            base.Start();
+            SetVariableValue(BtVar.Enemy, this);
+            if (!GetVariableValue(BtVar.StateChannel, out _stateChannel))
+            {
+                Debug.LogError($"{gameObject.name} Blackboard variable {BtVar.StateChannel} not found");
+            }
+        }
+
+        protected override void HandleHealthChange(float before, float current, float max)
+        {
+            if (current <= 0 && !IsDead)
+            {
+                _stateChannel.Value.SendEventMessage(EnemyState.DEAD);
+                IsDead = true;
+                onDeath?.Invoke();
+            }
+        }
+
+        public override void ApplyDamage(DamageData damageData, Vector2 hitPoint, Vector2 hitDirection, Vector2 hitNormal)
+        {
+            base.ApplyDamage(damageData, hitPoint, hitDirection, hitNormal);
+            if (!IsSuperArmor && !IsDead)
+            {
+                _stateChannel.Value.SendEventMessage(EnemyState.HIT);
+            }
+        }
+
+        public void SetDead()
+        {
+            gameObject.layer = LayerMask.NameToLayer("DeadBody");
+            Destroy(gameObject, 3f);
+        }
+
+        public void SetVariableValue<T>(string variableName, T value)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(variableName), $"Variable name is empty");
+
+            if (BTAgent.GetVariable<T>(variableName, out BlackboardVariable<T> variable))
+            {
+                variable.Value = value;
+            }
+            else
+            {
+                Debug.LogError($"Variable {variableName} not found");
+            }
+        }
+
+        public bool GetVariableValue<T>(string variableName, out BlackboardVariable<T> variable)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(variableName), "Variable name is empty");
+            
+            return BTAgent.GetVariable(variableName, out variable);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (AttackConfig != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(transform.position, AttackConfig.DetectRange);
+            }
+        }
+    }
+}

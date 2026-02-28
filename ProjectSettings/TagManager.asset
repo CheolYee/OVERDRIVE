@@ -2,21 +2,21 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - Projectile
+  - LevelProp
+  - DeadBody
+  - Skill
   - 
   - 
   - 
@@ -38,6 +38,26 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackGround
+    uniqueID: 3078489237
+    locked: 0
+  - name: Ground
+    uniqueID: 1049934315
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Agent
+    uniqueID: 959073937
+    locked: 0
+  - name: Item
+    uniqueID: 3400262913
+    locked: 0
+  - name: Effect
+    uniqueID: 3834211929
+    locked: 0
+  - name: UI
+    uniqueID: 3017175293
+    locked: 0
+  m_RenderingLayers:
+  - Default
