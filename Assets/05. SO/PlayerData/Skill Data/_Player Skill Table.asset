@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4625d8c15b3c4dbb868df16eaf987a74, type: 3}
+  m_Name: _Player Skill Table
+  m_EditorClassIdentifier: 
+  <TableName>k__BackingField: PlayerSkill
+  <AssetList>k__BackingField:
+  - {fileID: 11400000, guid: 8ac3a38a60edc5e40a13efb06d977c49, type: 2}
+  - {fileID: 11400000, guid: ea669ff95dae2d54bb942d036c17dda1, type: 2}
+  - {fileID: 11400000, guid: 131c84e305f0dcb4da985d9fe75b6dd1, type: 2}
+  enumName: PlayerSkill

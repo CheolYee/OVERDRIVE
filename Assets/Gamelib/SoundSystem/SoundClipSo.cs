@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Gamelib.SoundSystem
@@ -8,6 +9,9 @@ namespace Gamelib.SoundSystem
     [CreateAssetMenu(fileName = "Sound clip data", menuName = "Sound/ClipData", order = 10)]
     public class SoundClipSo : ScriptableObject
     {
+        public int soundIndex;
+        public string soundName;
+        
         public AudioTypes audioType;
         public AudioClip clip;
         public bool loop;
@@ -20,6 +24,10 @@ namespace Gamelib.SoundSystem
         [Range(0.1f, 3f)]
         public float pitch = 1f;
 
+        private void OnValidate()
+        {
+            soundName = name;
+        }
     }
 
 }

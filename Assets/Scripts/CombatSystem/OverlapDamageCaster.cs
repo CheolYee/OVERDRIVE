@@ -15,8 +15,8 @@ namespace CombatSystem
         [SerializeField] private float radius;
         [SerializeField] private Vector2 boxSize;
         
-        public void SetRadius(float newRadius) => radius = newRadius;
-        public void SetBoxSize(Vector2 newBoxSize) => boxSize = newBoxSize;
+        public override void SetRadius(float newRadius) => radius = newRadius;
+        public override void SetBoxSize(Vector2 newBoxSize) => boxSize = newBoxSize;
 
         public override bool CastDamage(float damage, Vector2 knockBackForce)
         {

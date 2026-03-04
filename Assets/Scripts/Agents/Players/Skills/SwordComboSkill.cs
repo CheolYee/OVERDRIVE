@@ -1,6 +1,8 @@
 ﻿﻿using Agents.FSM;
 using CombatSystem;
+using Gamelib.SoundSystem;
 using Systems.AnimationSystems;
+using Systems.Managers;
 using UnityEngine;
 
 namespace Agents.Players.Skills
@@ -14,6 +16,8 @@ namespace Agents.Players.Skills
         [SerializeField] private Vector2[] comboMovements;
         [SerializeField] private Vector2[] casterOffsets;
         [SerializeField] private Vector2[] overrideKnockbackForce;
+        [SerializeField] private Vector2[] casterSizes;
+        [SerializeField] private SfxSounds[] comboSfx;
         
         private IAnimatorTrigger _trigger;
         private IRenderer _renderer;
@@ -59,6 +63,9 @@ namespace Agents.Players.Skills
             Vector2 offset = comboCounter < casterOffsets.Length ? casterOffsets[comboCounter] : Vector2.zero;
             _damageCaster.transform.localPosition = offset; //로컬포지션
             
+            Vector2 sizeOffset = comboCounter < casterSizes.Length ? casterSizes[comboCounter] : Vector2.zero;
+            _damageCaster.SetBoxSize(sizeOffset); //캐스터 사이즈 조절
+            
             _renderer.SetFloat(attackIndexParam, comboCounter); //인덱스 지정
 
             _trigger.OnAttackTrigger += HandleAttackTrigger;
@@ -67,6 +74,7 @@ namespace Agents.Players.Skills
 
         private void HandleAttackTrigger()
         {
+            SoundPlayManager.Instance.PlaySfx(comboSfx[comboCounter], transform.position);
             float damage = _skillModule.GetBaseDamage(SkillData);
             Vector2 knockBackPower = comboCounter < overrideKnockbackForce.Length ? overrideKnockbackForce[comboCounter] : Vector2.zero;
             

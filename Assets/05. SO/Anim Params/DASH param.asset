@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f808eaf5876411c971c6cfd51d25487, type: 3}
-  m_Name: test
+  m_Script: {fileID: 11500000, guid: 806ed508855749cea51a4194c0f3c39e, type: 3}
+  m_Name: DASH param
   m_EditorClassIdentifier: 
-  poolingName: test
-  prefab: {fileID: 0}
-  initCount: 0
+  <ParamName>k__BackingField: DASH
+  <ParamHash>k__BackingField: -1376046924

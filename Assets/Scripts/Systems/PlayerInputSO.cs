@@ -8,12 +8,9 @@ namespace Systems
     public class PlayerInputSO : ScriptableObject, Controls.IPlayerActions
     {
         public event Action OnJumpKeyPressed;
-        public event Action OnSlideKeyPressed;
-        public event Action OnDashKeyPressed;
         public event Action OnAttackKeyPressed;
-        
+        public event Action<bool> OnDashKeyPressed;
         public event Action<bool> OnQKeyPressed;
-        public event Action<bool> OnWKeyPressed;
         public event Action<bool> OnEKeyPressed;
         public event Action<bool> OnRKeyPressed;
         
@@ -55,16 +52,12 @@ namespace Systems
                 OnJumpKeyPressed?.Invoke();
         }
 
-        public void OnSlide(InputAction.CallbackContext context)
-        {
-            if(context.performed)
-                OnSlideKeyPressed?.Invoke();
-        }
-
         public void OnDash(InputAction.CallbackContext context)
         {
-            if(context.performed)
-                OnDashKeyPressed?.Invoke();
+            if (context.performed)
+                OnDashKeyPressed?.Invoke(true);
+            if (context.canceled)
+                OnDashKeyPressed?.Invoke(false);
         }
 
         public void OnAttack(InputAction.CallbackContext context)
@@ -79,14 +72,6 @@ namespace Systems
                 OnQKeyPressed?.Invoke(true);
             if (context.canceled)
                 OnQKeyPressed?.Invoke(false);
-        }
-
-        public void OnWKey(InputAction.CallbackContext context)
-        {
-            if (context.performed)
-                OnWKeyPressed?.Invoke(true);
-            if (context.canceled)
-                OnWKeyPressed?.Invoke(false);
         }
 
         public void OnEKey(InputAction.CallbackContext context)

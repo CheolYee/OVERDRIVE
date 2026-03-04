@@ -15,7 +15,6 @@ namespace Agents.Players.States
         public override void Enter()
         {
             base.Enter();
-            _player.PlayerInput.OnSlideKeyPressed += HandleAirSlide;
             _mover.OnVelocityChange += HandleVelocityChange;
             _mover.SetMoveSpeedMultiplier(0.8f);
         }
@@ -29,20 +28,9 @@ namespace Agents.Players.States
 
         public override void Exit()
         {
-            _player.PlayerInput.OnSlideKeyPressed -= HandleAirSlide;
             _mover.OnVelocityChange -= HandleVelocityChange;
             _mover.SetMoveSpeedMultiplier(1f);
             base.Exit();
-        }
-
-        private void HandleAirSlide()
-        {
-            Vector2 direction = new Vector2(_renderer.FacingDirection * 0.7f, 0);
-
-            if (_player.Sensor.IsObstaclePresent(direction, out Collider2D hitCollider))
-            {
-                //_player.ChangeState(PlayerStateEnum.WALL_SLIDE);
-            }
         }
 
         private void HandleVelocityChange(Vector2 velocity)

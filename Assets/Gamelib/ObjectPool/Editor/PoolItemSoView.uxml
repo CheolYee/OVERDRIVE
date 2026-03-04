@@ -5,6 +5,6 @@
             <ui:Button text="변경하기&#10;" name="ChangeBtn" />
         </ui:VisualElement>
         <uie:ObjectField label="프리팹" name="PrefabField" binding-path="prefab" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
-        <ui:IntegerField label="초기 생성 개수" readonly="true" name="CountField" binding-path="initCount" />
+        <ui:IntegerField label="초기 생성 개수" readonly="false" name="CountField" binding-path="initCount" />
     </ui:VisualElement>
 </ui:UXML>

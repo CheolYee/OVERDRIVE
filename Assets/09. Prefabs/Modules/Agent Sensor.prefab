@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9051665028395277089}
   - component: {fileID: 2907380431676361764}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Agent Sensor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -15,4 +15,4 @@ MonoBehaviour:
   stateName: ATTACK
   className: Agents.Players.States.PlayerAttackState
   stateIndex: 4
-  stateParam: {fileID: 11400000, guid: 0a947d76aad033744bbd4e222da8060d, type: 2}
+  stateParam: {fileID: 0}

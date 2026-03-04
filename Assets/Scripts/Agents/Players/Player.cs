@@ -46,9 +46,7 @@ namespace Agents.Players
         {
             base.AfterInitComponents();
             PlayerInput.OnJumpKeyPressed += HandleJumpKeyPressed;
-            PlayerInput.OnDashKeyPressed += HandleDashKeyPressed;
             PlayerInput.OnAttackKeyPressed += HandleAttackKeyPressed;
-            PlayerInput.OnSlideKeyPressed += HandleSlideKeyPressed;
             _currentJumpCount = JumpCount; //요건 나중에 삭제한다.
             
             PlayerEventChannel.AddListener<ActivePlayerEvent>(HandleActivePlayerEvent);
@@ -67,9 +65,7 @@ namespace Agents.Players
         {
             base.OnDestroy();
             PlayerInput.OnJumpKeyPressed -= HandleJumpKeyPressed;
-            PlayerInput.OnDashKeyPressed -= HandleDashKeyPressed;
             PlayerInput.OnAttackKeyPressed -= HandleAttackKeyPressed;
-            PlayerInput.OnSlideKeyPressed -= HandleSlideKeyPressed;
             
             PlayerEventChannel.RemoveListener<ActivePlayerEvent>(HandleActivePlayerEvent);
         }
@@ -84,17 +80,11 @@ namespace Agents.Players
             ChangeState(PlayerStateEnum.IDLE);
         }
         
-        private void HandleSlideKeyPressed()
-        {
-            /*if(_stateMachine.CurrentState is ICanSlideState)
-                ChangeState(PlayerStateEnum.SLIDE); //나중에 스킬로 변경합니다.*/
-        }
-        
         private void HandleAttackKeyPressed()
         {
-            if (_stateMachine.CurrentState is ICanAttackState && _skillModule.CanUseSkill((int)PlayerSkill.SWORD_COMBO))
+            if (_stateMachine.CurrentState is ICanAttackState && _skillModule.CanUseSkill((int)PlayerSkill.NORMAL_COMBO))
             {
-                _skillModule.UseSkill((int)PlayerSkill.SWORD_COMBO);
+                _skillModule.UseSkill((int)PlayerSkill.NORMAL_COMBO);
                 ChangeState(PlayerStateEnum.ATTACK);
             }
             else if (_stateMachine.CurrentState is AbstractPlayerAirState && _skillModule.CanUseSkill((int)PlayerSkill.JUMP_ATTACK))
@@ -103,13 +93,6 @@ namespace Agents.Players
                 ChangeState(PlayerStateEnum.ATTACK);
             }
         }
-        
-        private void HandleDashKeyPressed()
-        {
-            /*if(_stateMachine.CurrentState is ICanDashState)
-                ChangeState(PlayerStateEnum.DASH);*/
-        }
-
         private void HandleJumpKeyPressed()
         {
             if (_stateMachine.CurrentState is ICanJumpState && _currentJumpCount > 0)

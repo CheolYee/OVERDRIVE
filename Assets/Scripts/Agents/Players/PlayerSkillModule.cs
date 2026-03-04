@@ -71,7 +71,7 @@ namespace Agents.Players
             _renderer.SetFloat(AttackSpeedParam, _currentAttackSpeed);
 
             Player.PlayerInput.OnQKeyPressed += HandleQKeyPress;
-            Player.PlayerInput.OnWKeyPressed += HandleWKeyPress;
+            Player.PlayerInput.OnDashKeyPressed += HandleDashKeyPress;
             Player.PlayerInput.OnEKeyPressed += HandleEKeyPress;
             Player.PlayerInput.OnRKeyPressed += HandleRKeyPress;
         }
@@ -89,7 +89,7 @@ namespace Agents.Players
             if (Player != null && Player.PlayerInput != null)
             {
                 Player.PlayerInput.OnQKeyPressed -= HandleQKeyPress;
-                Player.PlayerInput.OnWKeyPressed -= HandleWKeyPress;
+                Player.PlayerInput.OnDashKeyPressed -= HandleDashKeyPress;
                 Player.PlayerInput.OnEKeyPressed -= HandleEKeyPress;
                 Player.PlayerInput.OnRKeyPressed -= HandleRKeyPress;
             }
@@ -131,8 +131,8 @@ namespace Agents.Players
         
         #region 스킬 키 바인딩 로직
         
+        private void HandleDashKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.DASH_KEY, isPressed);
         private void HandleQKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.Q_KEY, isPressed);
-        private void HandleWKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.W_KEY, isPressed);
         private void HandleEKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.E_KEY, isPressed);
         private void HandleRKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.R_KEY, isPressed);
         private void SkillKeyPressed(SkillKey key, bool isPressed)

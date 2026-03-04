@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5976883442936740597}
   - component: {fileID: 7894892722804212663}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Health Module
   m_TagString: Untagged
   m_Icon: {fileID: 0}

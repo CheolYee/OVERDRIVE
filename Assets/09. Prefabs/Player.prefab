@@ -57,7 +57,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 38814682d4b2d6240927dd7604594b4a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -134,7 +134,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6413827308732592422}
   - component: {fileID: 2405379039816023662}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: PlayerStats
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,7 +171,121 @@ MonoBehaviour:
   statOverrides:
   - <StatData>k__BackingField: {fileID: 11400000, guid: ad61fffca6ca7cc4db0a875f7355c714, type: 2}
     isUseOverride: 1
-    overrideValue: 9
+    overrideValue: 12
+  - <StatData>k__BackingField: {fileID: 11400000, guid: b14cc94c7089d6d4ca073872253d4422, type: 2}
+    isUseOverride: 1
+    overrideValue: 1
+  - <StatData>k__BackingField: {fileID: 11400000, guid: fac57633f15edc64b9e21a64ff8b0a00, type: 2}
+    isUseOverride: 1
+    overrideValue: 5
+  - <StatData>k__BackingField: {fileID: 11400000, guid: b840f7d21e2d0eb4d9aa527da6990d32, type: 2}
+    isUseOverride: 1
+    overrideValue: 200
+--- !u!1 &8329426427717733694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3916188293514387055}
+  - component: {fileID: 2667343297794793466}
+  - component: {fileID: 5787933993903662434}
+  m_Layer: 0
+  m_Name: Player Skill Module
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3916188293514387055
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8329426427717733694}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1312156464679088141}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2667343297794793466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8329426427717733694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956c5d921c0f470ea440fea4691acc43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <AttackSpeedStat>k__BackingField: {fileID: 11400000, guid: b14cc94c7089d6d4ca073872253d4422, type: 2}
+  <PhysicalDamageStat>k__BackingField: {fileID: 11400000, guid: fac57633f15edc64b9e21a64ff8b0a00, type: 2}
+  <IntStat>k__BackingField: {fileID: 11400000, guid: 0bc35da9b3737b04f92d2cd35f9e6359, type: 2}
+  <StrStat>k__BackingField: {fileID: 11400000, guid: 4aea9e89b669d2c4197eaed83b34ced8, type: 2}
+  <AttackSpeedParam>k__BackingField: {fileID: 11400000, guid: c3e24718b0648be4ea28758c712975e8, type: 2}
+  <InitSkills>k__BackingField:
+  - {fileID: 11400000, guid: 8ac3a38a60edc5e40a13efb06d977c49, type: 2}
+--- !u!114 &5787933993903662434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8329426427717733694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1 &8369395341878321242
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,6 +322,7 @@ Transform:
   - {fileID: 5676048547442740719}
   - {fileID: 6413827308732592422}
   - {fileID: 1032049419069775041}
+  - {fileID: 3916188293514387055}
   - {fileID: 8737643201855953370}
   - {fileID: 688243701220248696}
   - {fileID: 8423517074706242077}

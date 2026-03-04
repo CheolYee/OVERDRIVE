@@ -1,6 +1,8 @@
 using System;
 using Agents.StatSystem;
+using Gamelib.SoundSystem;
 using Modules;
+using Systems.Managers;
 using UnityEngine;
 
 namespace CombatSystem
@@ -63,6 +65,7 @@ namespace CombatSystem
         
         public void ApplyDamage(float damage)
         {
+            SoundPlayManager.Instance.PlaySfx(SfxSounds.NORMAL_HIT, transform.position);
             CurrentHealth -= damage;
         }
     }

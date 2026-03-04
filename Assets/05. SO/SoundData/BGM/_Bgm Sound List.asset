@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 806ed508855749cea51a4194c0f3c39e, type: 3}
-  m_Name: ATTACK param
+  m_Script: {fileID: 11500000, guid: a9fdec1e23df484c8fb68d89c1173092, type: 3}
+  m_Name: _Bgm Sound List
   m_EditorClassIdentifier: 
-  <ParamName>k__BackingField: ATTACK
-  <ParamHash>k__BackingField: -1221006659
+  enumName: BgmSounds
+  sounds:
+  - {fileID: 11400000, guid: bbbf7701ec5557a48a0531076bf83448, type: 2}

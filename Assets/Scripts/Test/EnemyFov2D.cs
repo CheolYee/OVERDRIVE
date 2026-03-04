@@ -1,4 +1,6 @@
 using Agents;
+using Agents.Enemies;
+using CombatSystem;
 using UnityEngine;
 
 namespace Test
@@ -127,6 +129,20 @@ namespace Test
 #endif
         protected override void HandleHealthChange(float before, float current, float max)
         {
+            if (current <= 0 && !IsDead)
+            {
+                IsDead = true;
+                onDeath?.Invoke();
+            }    
+        }
+        
+        public override void ApplyDamage(DamageData damageData, Vector2 hitPoint, Vector2 hitDirection, Vector2 hitNormal)
+        {
+            base.ApplyDamage(damageData, hitPoint, hitDirection, hitNormal);
+            if (!IsSuperArmor && !IsDead)
+            {
+                Debug.Log("적이 피격당함!");
+            }
         }
     }
 }
