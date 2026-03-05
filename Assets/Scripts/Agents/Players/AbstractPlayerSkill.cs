@@ -11,6 +11,7 @@ namespace Agents.Players
         protected PlayerSkillModule _skillModule; //이건 나중에 변경
         protected Player _player;
         
+        [Header("Skill Info")]
         [field: SerializeField] public SkillKey BindingKey { get; set; }
         [field: SerializeField] public bool Cancelable { get; private set; } = false; //다른 공격이 이 공격 취소 여부
         [field: SerializeField] public bool CanInterrupt { get; private set; } = false; //다른공격 취소가능여부

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Agents.FSM;
 using Agents.Players.States;
 using CombatSystem;
@@ -10,6 +11,7 @@ namespace Agents.Players.Skills
 {
     public class DashSkill : AbstractPlayerSkill
     {
+        [Header("Dash Settings")]
         [SerializeField] private float dashDuration;
         [SerializeField] private float dashDistance;
         
@@ -18,6 +20,8 @@ namespace Agents.Players.Skills
         private IRenderer _renderer;
         
         private bool _isDashing;
+        
+        private readonly HashSet<int> _hitHashSet = new HashSet<int>();
         
         public override void InitializeSkill(ISkillModule skillModule)
         {
@@ -48,6 +52,9 @@ namespace Agents.Players.Skills
 
         private void StartDashSkill()
         {
+            _hitHashSet.Clear();
+            _isDashing = true;
+            
             float xInput = _player.PlayerInput.InputDirection.x;
             float yInput = _player.PlayerInput.InputDirection.y;
             
@@ -67,13 +74,10 @@ namespace Agents.Players.Skills
             Vector3 destination = _player.transform.position + (Vector3)dashDirection * realDistance;
             float realDashDuration = realDistance * dashDuration / dashDistance; //비례식을 이용하여 실제 이동거리만큼의 시간 구하기
 
-            DealDashDamage();
-            
-            _player.transform.DOMove(destination, realDashDuration).SetEase(Ease.OutQuad)
+            _mover.Rigidbody2D.DOMove(destination, realDashDuration)
+                .SetEase(Ease.OutQuad)
                 .SetUpdate(UpdateType.Fixed)
-                .OnComplete(
-                StopSkill);
-            _isDashing = true;
+                .OnComplete(StopSkill);
         }
 
         public override void StopSkill()
@@ -89,20 +93,24 @@ namespace Agents.Players.Skills
             _lastUseTime = Time.time;
             _skillModule.InvokeAttackEnd();
             _isDashing = false;
-            Debug.Log("대쉬 끝");
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
+        private void OnTriggerStay2D(Collider2D other)
         {
             if (!_isDashing) return;
-            DealDashDamage();
+            if (!other.TryGetComponent(out IDamageable _)) return;
+            
+            int id = other.GetInstanceID();
+            if (!_hitHashSet.Add(id)) return;
+            
+            DealDashDamage(other);
         }
         
-        private void DealDashDamage()
+        private void DealDashDamage(Collider2D col = null)
         {
             float damage = _skillModule.GetBaseDamage(SkillData);
             Vector2 knockBackPower = SkillData.knockBackForce;
-            _damageCaster.CastDamage(damage, knockBackPower);
+            _damageCaster.CastDamage(damage, knockBackPower, col);
         }
     }
 }

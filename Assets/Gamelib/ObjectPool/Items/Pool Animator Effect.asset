@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a001ef296bf4df2a224a27e90d904eb, type: 3}
-  m_Name: PoolManager
+  m_Script: {fileID: 11500000, guid: 6f808eaf5876411c971c6cfd51d25487, type: 3}
+  m_Name: Pool Animator Effect
   m_EditorClassIdentifier: 
-  itemList:
-  - {fileID: 11400000, guid: 76526dfa92a63aa45840606ba1816632, type: 2}
-  - {fileID: 11400000, guid: ba7cf0dc20e86c447873b851ec499398, type: 2}
+  poolingName: Pool Animator Effect
+  prefab: {fileID: 7557504944103570324, guid: f7f1955e238ce6d468df410ebfe38311, type: 3}
+  initCount: 10

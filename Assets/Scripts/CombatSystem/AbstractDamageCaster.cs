@@ -19,6 +19,7 @@ namespace CombatSystem
         }
 
         public abstract bool CastDamage(float damage, Vector2 knockBackForce);
+        public abstract bool CastDamage(float damage, Vector2 knockBackForce, Collider2D hitCollider);
         public abstract void SetRadius(float newRadius);
         public abstract void SetBoxSize(Vector2 newBoxSize);
     }
