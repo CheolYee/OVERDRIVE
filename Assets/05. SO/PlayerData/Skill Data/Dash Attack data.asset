@@ -20,6 +20,7 @@ MonoBehaviour:
   damageMultiplier: 1
   knockBackForce: {x: 2, y: 3}
   cooldown: 0.25
+  skillIcon: {fileID: -8795100640931408335, guid: 7f4d46f42a3f9fc4b8ac68ba22d68cf4, type: 3}
   animatorParam: {fileID: 11400000, guid: 7a0c6e38132272343b587ab2036f14f4, type: 2}
   nextState: 0
   defaultKey: 2

@@ -1,11 +1,8 @@
-﻿using System;
-using Agents.FSM;
-using Agents.Players.States;
+﻿using Agents.FSM;
 using CombatSystem;
 using Gamelib.EventSystem;
 using Systems;
 using Systems.AnimationSystems;
-using Systems.Database;
 using Systems.GameEvents;
 using UnityEngine;
 
@@ -23,7 +20,7 @@ namespace Agents.Players
         
         [field: SerializeField] public AnimParamSO AttackSpeedParam { get; private set; }
 
-        private ISkillModule _skillModule;
+        private IPlayerSkillModule _skillModule;
         
         #endregion
         
@@ -38,7 +35,7 @@ namespace Agents.Players
         {
             base.InitializeComponents();
             
-            _skillModule = GetModule<ISkillModule>(); //나중에 변경.
+            _skillModule = GetModule<IPlayerSkillModule>(); //나중에 변경.
             _stateMachine = new AgentStateMachine(this, stateList.states);
         }
 
@@ -82,16 +79,7 @@ namespace Agents.Players
         
         private void HandleAttackKeyPressed()
         {
-            if (_stateMachine.CurrentState is ICanAttackState && _skillModule.CanUseSkill((int)PlayerSkill.NORMAL_COMBO))
-            {
-                _skillModule.UseSkill((int)PlayerSkill.NORMAL_COMBO);
-                ChangeState(PlayerStateEnum.ATTACK);
-            }
-            else if (_stateMachine.CurrentState is AbstractPlayerAirState && _skillModule.CanUseSkill((int)PlayerSkill.JUMP_ATTACK))
-            {
-                _skillModule.UseSkill((int)PlayerSkill.JUMP_ATTACK);
-                ChangeState(PlayerStateEnum.ATTACK);
-            }
+            _skillModule.TryUseBasicAttack();
         }
         private void HandleJumpKeyPressed()
         {

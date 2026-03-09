@@ -9,6 +9,9 @@ namespace Agents.Players.Skills
     [CreateAssetMenu(fileName = "Player Skill data", menuName = "Combat/Player Skill data", order = 15)]
     public class PlayerSkillDataSo : SkillDataSO
     {
+        public PlayerSkill skillId;
+        [Range(1, 3)] public int level = 1;
+        public Sprite skillIcon;
         public AnimParamSO animatorParam;
         public PlayerStateEnum nextState;
         public SkillKey defaultKey;

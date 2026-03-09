@@ -18,6 +18,7 @@ namespace CombatSystem
         public float minRange;
         public float maxRange;
         public string attackName;
+        public string idName;
         public float damageMultiplier = 1f;
         public Vector2 knockBackForce;
         public float cooldown;

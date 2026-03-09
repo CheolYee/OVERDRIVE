@@ -1,8 +1,8 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Agents.FSM;
 using Agents.Players.Skills;
+using Agents.Players.States;
 using Agents.StatSystem;
 using CombatSystem;
 using Modules;
@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Agents.Players
 {
     [RequireComponent(typeof(CinemachineImpulseSource))]
-    public class PlayerSkillModule : MonoBehaviour, IModule, ISkillModule, IAfterInitModule
+    public class PlayerSkillModule : MonoBehaviour, IModule, IPlayerSkillModule, IAfterInitModule
     {
         public ModuleOwner Owner { get; private set; }
         public Player Player { get; private set; }
@@ -38,9 +38,12 @@ namespace Agents.Players
         [field: SerializeField] public AnimParamSO AttackSpeedParam { get; private set; }
 
         [field: SerializeField] public PlayerSkillDataSo[] InitSkills { get; private set; }
+        [field: SerializeField] public PlayerSkillDataSo GroundBasicAttackSkill { get; private set; }
+        [field: SerializeField] public PlayerSkillDataSo AirBasicAttackSkill { get; private set; }
         
-        public AbstractPlayerSkill CurrentUsingSkill { get; private set; } = null;
+        public AbstractPlayerSkill CurrentUsingSkill { get; private set; }
         
+        private IPlayerDashLoadoutModule _dashLoadoutModule;
         
         public void Initialize(ModuleOwner owner)
         {
@@ -50,6 +53,8 @@ namespace Agents.Players
                         
             _renderer = Owner.GetModule<IRenderer>();
             _statModule = Owner.GetModule<IStatModule>();
+            _dashLoadoutModule = Owner.GetModule<IPlayerDashLoadoutModule>();
+            Debug.Assert(_dashLoadoutModule != null, $"{gameObject.name} is not attached to player");
             
             _impulseSource = GetComponent<CinemachineImpulseSource>();
             _skillDict = new Dictionary<int, AbstractPlayerSkill>();
@@ -131,7 +136,17 @@ namespace Agents.Players
         
         #region 스킬 키 바인딩 로직
         
-        private void HandleDashKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.DASH_KEY, isPressed);
+        private void HandleDashKeyPress(bool isPressed)
+        {
+            if (isPressed)
+            {
+                TryUseDashFromLoadout();
+            }
+            else
+            {
+                EndDashSequenceIfChargeable();
+            }
+        }
         private void HandleQKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.Q_KEY, isPressed);
         private void HandleEKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.E_KEY, isPressed);
         private void HandleRKeyPress(bool isPressed) => SkillKeyPressed(SkillKey.R_KEY, isPressed);
@@ -143,8 +158,11 @@ namespace Agents.Players
                 {
                     if (CurrentUsingSkill != null && CurrentUsingSkill.IsAttacking
                                                   && (!CurrentUsingSkill.Cancelable || !skill.CanInterrupt)) return;
+
                     CurrentUsingSkill?.StopSkill();
                     Player.ChangeState(PlayerStateEnum.ATTACK);
+                    _dashLoadoutModule.ClearDashSkillStarted();
+
                     if (skill is IChargeableSkill chargeableSkill)
                     {
                         CurrentUsingSkill = skill;
@@ -160,17 +178,12 @@ namespace Agents.Players
                 {
                     chargeableSkill.ChargeEnd();
                 }
-                //현재 스킬이 존재하고 사용중일 때 검사해봐라. 
-                //현재 스킬이 캔슬 가능하고, 지금 사용하려는 스킬이 인터럽터블 한지를 검사해서. 둘다 만족하지 않는다면 리턴.
-
-                
             }
             else
             {
                 Debug.Log($"<color=red>Can't use skill</color> Key = {key}");
             }
         }
-
         #endregion
 
 
@@ -204,16 +217,102 @@ namespace Agents.Players
             {
                 if (CurrentUsingSkill != null && CurrentUsingSkill.IsAttacking)
                 {
-                    //여기서 현재 스킬이 캔슬가능한지 따져봐야 해. 하지만 그건 다다음주에 한다.
-                    CurrentUsingSkill.StopSkill(); //강제 종료
+                    CurrentUsingSkill.StopSkill();
                 }
-                
+
                 CurrentUsingSkill = skill;
                 _renderer.PlayClip(skill.PlayerSkillData.animatorParam.ParamHash);
                 skill.UseSkill(target);
             }
         }
+
+        public bool TryUseBasicAttack()
+        {
+            AgentState currentState = Player.GetCurrentState();
+
+            if (currentState is ICanAttackState)
+            {
+                return TryUseConfiguredSkill(GroundBasicAttackSkill);
+            }
+
+            if (currentState is AbstractPlayerAirState)
+            {
+                return TryUseConfiguredSkill(AirBasicAttackSkill);
+            }
+
+            return false;
+        }
         
+        private bool TryUseConfiguredSkill(PlayerSkillDataSo skillData)
+        {
+            if (skillData == null) return false;
+
+            if (!CanUseSkill(skillData.AssetIndex))
+                return false;
+
+            _dashLoadoutModule.ClearDashSkillStarted();
+            UseSkill(skillData.AssetIndex);
+            Player.ChangeState(PlayerStateEnum.ATTACK);
+            return true;
+        }
+        
+        private bool TryUseDashSkill(PlayerSkillDataSo skillData)
+        {
+            if (skillData == null)
+                return false;
+
+            if (!_skillDict.TryGetValue(skillData.AssetIndex, out AbstractPlayerSkill skill))
+                return false;
+
+            if (!skill.CanUseSkill())
+                return false;
+
+            if (CurrentUsingSkill != null && CurrentUsingSkill.IsAttacking
+                                          && (!CurrentUsingSkill.Cancelable || !skill.CanInterrupt))
+                return false;
+
+            CurrentUsingSkill?.StopSkill();
+            Player.ChangeState(PlayerStateEnum.ATTACK);
+            _dashLoadoutModule.MarkDashSkillStarted();
+
+            if (skill is IChargeableSkill chargeableSkill)
+            {
+                CurrentUsingSkill = skill;
+                _renderer.PlayClip(skill.PlayerSkillData.animatorParam.ParamHash);
+                chargeableSkill.ChargeStart();
+            }
+            else
+            {
+                UseSkill(skill.SkillData.AssetIndex);
+            }
+
+            return true;
+        }
+        private void EndDashSequenceIfChargeable()
+        {
+            if (!_dashLoadoutModule.CanReleaseDashCharge())
+                return;
+
+            if (CurrentUsingSkill is not IChargeableSkill chargeableSkill)
+                return;
+
+            _dashLoadoutModule.ClearDashSkillStarted();
+            chargeableSkill.ChargeEnd();
+        }
+        
+        private bool TryUseDashFromLoadout()
+        {
+            if (!_dashLoadoutModule.TryPeekNextDashSkill(out PlayerSkillDataSo skillData))
+                return false;
+
+            if (!TryUseDashSkill(skillData))
+                return false;
+
+            _dashLoadoutModule.AdvanceToNextDashSkill();
+            return true;
+        }
+        
+
         //OnAttackEnd 는 event이기 때문에 이 클래스에서만 실행이 가능하다. 근데 공격을 끝내는건 자식인 AbstractPlayerAttack이 끝낸다.
         //따라서 자식이 공격 끝냈음을 발행할 수 있도록 하는 매서드를 만들어야 한다.
         public void InvokeAttackEnd() => OnAttackEnd?.Invoke();
