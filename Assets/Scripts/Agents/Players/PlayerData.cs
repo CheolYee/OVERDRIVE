@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Agents.Players
 {
-    public class PlayerData : MonoBehaviour, IModule, ISaveable
+    public class PlayerData : MonoBehaviour, IModule, ISaveable, IPlayerCurrencyWallet
     {
         [SerializeField] private LevelDataSo levelData;
         [field: SerializeField] public int CurrentExp { get; private set; }
@@ -153,5 +153,34 @@ namespace Agents.Players
             }
         }
         #endregion
+
+        public int CurrentGold => Gold;
+        public bool CanSpendGold(int amount)
+        {
+            if (amount <= 0)
+                return true;
+            
+            return Gold >= amount;
+        }
+
+        public bool TrySpendGold(int amount)
+        {
+            if (amount <= 0)
+                return true;
+            
+            if (Gold < amount)
+                return false;
+            
+            Gold -= amount;
+            return true;
+        }
+
+        public void AddGold(int amount)
+        {
+            if (amount <= 0)
+                return;
+            
+            Gold += amount;
+        }
     }
 }

@@ -44,14 +44,12 @@ namespace Test
 
             if (inFov)
             {
-                Debug.Log($"플레이어 감지! Enemy: {name}");
                 float dir = player.position.x - transform.position.x;
                 Mover.SetMovementX(dir);
                 
             }
             else
             {
-                Debug.Log($"플레이어 놓침. Enemy: {name}");
                 Mover.StopImmediately(true, false);
             }
         }

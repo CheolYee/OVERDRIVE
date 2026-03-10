@@ -69,7 +69,6 @@ namespace CombatSystem
             };
 
             damageable.ApplyDamage(damageData, point, direction, -direction);
-            Debug.Log("데미지 입힘: " + damageData.DamageAmount);
             return true;
         }
 

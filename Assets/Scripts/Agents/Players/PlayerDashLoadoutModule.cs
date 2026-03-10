@@ -2,6 +2,7 @@ using System;
 using Agents.Players.Skills;
 using Modules;
 using System.Linq;
+using Systems.Database;
 using UnityEngine;
 
 namespace Agents.Players
@@ -67,6 +68,40 @@ namespace Agents.Players
         public bool CanReleaseDashCharge()
         {
             return _isCurrentSkillStartedByDash;
+        }
+        
+        public int ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData)
+        {
+            if (newSkillData == null || newSkillData.skillId != skillId || dashSlots == null)
+                return 0;
+
+            int replacedCount = 0;
+
+            for (int i = 0; i < dashSlots.Length; i++)
+            {
+                DashSkillSlot slot = dashSlots[i];
+
+                if (slot.equippedSkill == null)
+                    continue;
+
+                if (slot.equippedSkill.skillId != skillId)
+                    continue;
+
+                if (slot.equippedSkill == newSkillData)
+                    continue;
+
+                slot.equippedSkill = newSkillData;
+                dashSlots[i] = slot;
+                replacedCount++;
+            }
+
+            if (replacedCount > 0)
+            {
+                NotifyDashLoadoutChanged();
+                NotifyDashPreviewChanged();
+            }
+
+            return replacedCount;
         }
 
         #region 조회

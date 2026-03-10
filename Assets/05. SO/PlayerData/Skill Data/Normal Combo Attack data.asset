@@ -16,11 +16,14 @@ MonoBehaviour:
   skillType: 0
   minRange: 0
   maxRange: 0
-  attackName: Normal Combo
+  attackName: "\uAE30\uBCF8 \uACF5\uACA9"
+  idName: Normal Combo Attack
   damageMultiplier: 1
   knockBackForce: {x: 2, y: 2}
   cooldown: 0
-  skillIcon: {fileID: 2090743848279392477, guid: a1326fbd1692a244a950e8765523a8c6, type: 3}
+  skillId: 0
+  level: 1
+  skillIcon: {fileID: 21300000, guid: cdc7ff7a62e1fbe4fb1b3af4bd9269a4, type: 3}
   animatorParam: {fileID: 11400000, guid: 0a947d76aad033744bbd4e222da8060d, type: 2}
   nextState: 0
   defaultKey: 1

@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Agents.Players
 {
     [RequireComponent(typeof(CinemachineImpulseSource))]
-    public class PlayerSkillModule : MonoBehaviour, IModule, IPlayerSkillModule, IAfterInitModule
+    public class PlayerSkillModule : MonoBehaviour, IModule, IPlayerSkillModule, IPlayerSkillRuntimeRegistry, IAfterInitModule
     {
         public ModuleOwner Owner { get; private set; }
         public Player Player { get; private set; }
@@ -106,16 +106,37 @@ namespace Agents.Players
         
         public void AddSkill(PlayerSkillDataSo skillData, SkillKey bindKey = SkillKey.NONE)
         {
+            if (skillData == null)
+            {
+                Debug.LogWarning($"{nameof(PlayerSkillModule)} : skillData가 null 입니다.");
+                return;
+            }
+
+            if (skillData.prefab == null)
+            {
+                Debug.LogWarning($"{nameof(PlayerSkillModule)} : {skillData.name} 의 prefab 이 비어 있습니다.");
+                return;
+            }
+
+            if (_skillDict.ContainsKey(skillData.AssetIndex))
+            {
+                Debug.LogWarning($"{nameof(PlayerSkillModule)} : 이미 등록된 스킬입니다. AssetIndex = {skillData.AssetIndex}");
+                return;
+            }
+
             GameObject skillObject = Instantiate(skillData.prefab, transform);
             AbstractPlayerSkill skill = skillObject.GetComponent<AbstractPlayerSkill>();
             skill.InitializeSkill(this);
+
             _skillDict.Add(skillData.AssetIndex, skill);
             skill.BindingKey = bindKey;
 
             if (bindKey != SkillKey.NONE && bindKey != SkillKey.BASE_KEY)
             {
-                _keyBindDict.Add(bindKey, skill);
-                //나중에 키바인드 변경시마다 이벤트 발행할 필요 있음.
+                if (!_keyBindDict.TryAdd(bindKey, skill))
+                {
+                    Debug.LogWarning($"{nameof(PlayerSkillModule)} : 이미 다른 스킬이 {bindKey} 에 바인딩되어 있습니다.");
+                }
             }
         }
 
@@ -326,6 +347,34 @@ namespace Agents.Players
                 SkillType.NONE_DAMAGE => 0,
                 _ => 0
             };
+        }
+
+        public bool IsSkillRegistered(PlayerSkillDataSo skillData)
+        {
+            if (skillData == null || _skillDict == null)
+                return false;
+
+            return _skillDict.ContainsKey(skillData.AssetIndex);
+        }
+
+        public bool TryRegisterSkill(PlayerSkillDataSo skillData)
+        {
+            if (skillData == null)
+                return false;
+
+            if (_skillDict == null)
+                return false;
+
+            if (_skillDict.ContainsKey(skillData.AssetIndex))
+                return true;
+
+            AddSkill(skillData);
+            return _skillDict.ContainsKey(skillData.AssetIndex);
+        }
+
+        public bool TryReplaceSkill(PlayerSkillDataSo previousSkillData, PlayerSkillDataSo newSkillData)
+        {
+            throw new NotImplementedException();
         }
     }
 }

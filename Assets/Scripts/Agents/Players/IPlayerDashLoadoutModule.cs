@@ -1,5 +1,6 @@
 using System;
 using Agents.Players.Skills;
+using Systems.Database;
 
 namespace Agents.Players
 {
@@ -26,5 +27,7 @@ namespace Agents.Players
         bool EquipDashSkill(int slotIndex, PlayerSkillDataSo skillData);
         bool UnequipDashSkill(int slotIndex);
         bool SwapDashSlots(int fromIndex, int toIndex);
+
+        int ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData);
     }
 }

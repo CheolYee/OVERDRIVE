@@ -37,7 +37,7 @@ namespace Systems.Database.Editor
                 EditorUtility.SetDirty(so);
                 PlayerSkillDataSo skillData = so as PlayerSkillDataSo;
                 Debug.Assert(skillData != null, $"플레이어 스킬 테이블에 있는 데이터가 아닙니다. : {so.name}");
-                return $"{skillData.attackName.ToUpper().Replace(' ', '_')} = {index++}";
+                return $"{skillData.idName.ToUpper().Replace(' ', '_')} = {index++}";
             }));
             
             string scriptPath = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this));

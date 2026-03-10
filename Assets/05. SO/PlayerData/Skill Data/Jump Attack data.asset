@@ -16,10 +16,14 @@ MonoBehaviour:
   skillType: 0
   minRange: 0
   maxRange: 0
-  attackName: Jump Attack
+  attackName: "\uC810\uD504 \uACF5\uACA9"
+  idName: Jump Attack
   damageMultiplier: 1.3
   knockBackForce: {x: 0, y: -5}
   cooldown: 0.5
+  skillId: 1
+  level: 1
+  skillIcon: {fileID: 0}
   animatorParam: {fileID: 11400000, guid: 4e93c5c8df124cc4aa0c0cf5d6ea7f93, type: 2}
   nextState: 3
   defaultKey: 1
