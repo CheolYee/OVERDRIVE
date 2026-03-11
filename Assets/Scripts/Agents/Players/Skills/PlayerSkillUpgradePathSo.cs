@@ -4,57 +4,38 @@ using UnityEngine;
 
 namespace Agents.Players.Skills
 {
-    [CreateAssetMenu(fileName = "PlayerSkillUpgradePath", menuName = "Combat/Player Skill Upgrade Path", order = 16)]
+    [Serializable]
+    public struct PlayerSkillUpgradeTier
+    {
+        public PlayerSkillDataSo skillData;
+        [Min(0)] public int requiredShardsToNext;
+        [Min(0)] public int requiredGoldToNext;
+    }
+
+    [CreateAssetMenu(fileName = "Player Skill Upgrade Path", menuName = "Combat/Player Skill Upgrade Path", order = 16)]
     public class PlayerSkillUpgradePathSo : ScriptableObject
     {
-        [SerializeField] private PlayerSkill skillId;
-        [SerializeField] [Min(1)] private int duplicateShardReward = 1;
-        [SerializeField] private PlayerSkillDataSo[] levelSkills;
-        [SerializeField] private SkillUpgradeCost[] upgradeCosts;
+        public PlayerSkill skillId;
+        [Min(1)] public int duplicateShardReward = 1;
+        public PlayerSkillUpgradeTier[] tiers;
 
-        public PlayerSkill SkillId => skillId;
-        public int DuplicateShardReward => duplicateShardReward;
-        public int MaxLevel => levelSkills == null ? 0 : levelSkills.Length;
+        public int MaxLevel => tiers?.Length ?? 0;
 
-        public PlayerSkillDataSo GetEntrySkill()
+        public bool TryGetTierIndex(PlayerSkillDataSo skillData, out int tierIndex)
         {
-            if (levelSkills == null || levelSkills.Length == 0)
-                return null;
+            tierIndex = -1;
 
-            return levelSkills[0];
-        }
-
-        public bool TryGetSkillAtLevel(int level, out PlayerSkillDataSo skillData)
-        {
-            skillData = null;
-
-            if (levelSkills == null)
+            if (skillData == null || tiers == null)
                 return false;
 
-            int index = level - 1;
-            if (index < 0 || index >= levelSkills.Length)
-                return false;
-
-            skillData = levelSkills[index];
-            return skillData != null;
-        }
-
-        public bool TryGetCurrentLevel(PlayerSkillDataSo currentSkillData, out int level)
-        {
-            level = 0;
-
-            if (currentSkillData == null || levelSkills == null)
-                return false;
-
-            for (int i = 0; i < levelSkills.Length; i++)
+            for (int i = 0; i < tiers.Length; i++)
             {
-                PlayerSkillDataSo levelSkill = levelSkills[i];
-                if (levelSkill == null)
+                if (tiers[i].skillData == null)
                     continue;
 
-                if (levelSkill.AssetIndex == currentSkillData.AssetIndex)
+                if (tiers[i].skillData.AssetIndex == skillData.AssetIndex)
                 {
-                    level = i + 1;
+                    tierIndex = i;
                     return true;
                 }
             }
@@ -62,56 +43,32 @@ namespace Agents.Players.Skills
             return false;
         }
 
-        public bool TryGetNextSkill(PlayerSkillDataSo currentSkillData, out PlayerSkillDataSo nextSkillData)
+        public bool TryGetCurrentTier(PlayerSkillDataSo currentSkill, out PlayerSkillUpgradeTier currentTier, out int tierIndex)
         {
-            nextSkillData = null;
+            currentTier = default;
+            tierIndex = -1;
 
-            if (!TryGetCurrentLevel(currentSkillData, out int currentLevel))
+            if (!TryGetTierIndex(currentSkill, out tierIndex))
                 return false;
 
-            return TryGetSkillAtLevel(currentLevel + 1, out nextSkillData);
-        }
-
-        public bool TryGetUpgradeCost(PlayerSkillDataSo currentSkillData, out SkillUpgradeCost upgradeCost)
-        {
-            upgradeCost = default;
-
-            if (!TryGetCurrentLevel(currentSkillData, out int currentLevel))
-                return false;
-
-            int costIndex = currentLevel - 1;
-            if (upgradeCosts == null || costIndex < 0 || costIndex >= upgradeCosts.Length)
-                return false;
-
-            upgradeCost = upgradeCosts[costIndex];
+            currentTier = tiers[tierIndex];
             return true;
         }
 
-#if UNITY_EDITOR
-        private void OnValidate()
+        public bool TryGetNextTier(PlayerSkillDataSo currentSkill, out PlayerSkillUpgradeTier currentTier, out PlayerSkillUpgradeTier nextTier)
         {
-            if (levelSkills == null)
-                return;
+            currentTier = default;
+            nextTier = default;
 
-            for (int i = 0; i < levelSkills.Length; i++)
-            {
-                PlayerSkillDataSo skillData = levelSkills[i];
-                if (skillData == null)
-                    continue;
+            if (!TryGetCurrentTier(currentSkill, out currentTier, out int tierIndex))
+                return false;
 
-                if (skillData.skillId != skillId)
-                {
-                    Debug.LogWarning($"{name} : levelSkills[{i}] 의 skillId가 {skillId} 와 다릅니다.");
-                }
-            }
+            int nextIndex = tierIndex + 1;
+            if (tiers == null || nextIndex >= tiers.Length)
+                return false;
+
+            nextTier = tiers[nextIndex];
+            return nextTier.skillData != null;
         }
-#endif
-    }
-
-    [Serializable]
-    public struct SkillUpgradeCost
-    {
-        [Min(0)] public int shardCost;
-        [Min(0)] public int goldCost;
     }
 }

@@ -9,6 +9,8 @@ namespace UI.InventorySystem
     {
         event Action OnInventoryChanged;
 
+        IReadOnlyList<PlayerSkillInventoryEntry> Entries { get; }
+
         int GetSkillCount();
         bool Contains(PlayerSkill skillId);
 
@@ -19,13 +21,10 @@ namespace UI.InventorySystem
         bool TryGetEntryAt(int index, out PlayerSkillInventoryEntry entry);
         bool TryGetShardCount(PlayerSkill skillId, out int shardCount);
 
-        IReadOnlyList<PlayerSkillInventoryEntry> Entries { get; }
-
         bool TryAddSkill(PlayerSkillDataSo skillData);
-
+        bool TryAcquireSkill(PlayerSkillDataSo skillData, int duplicateShardAmount = 1);
         bool TryAddShards(PlayerSkill skillId, int amount);
         bool TryConsumeShards(PlayerSkill skillId, int amount);
-
         bool TrySetCurrentSkill(PlayerSkillDataSo skillData);
     }
 }

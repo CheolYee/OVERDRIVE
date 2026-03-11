@@ -9,9 +9,8 @@ using UnityEngine;
 
 namespace UI.InventorySystem
 {
-    public class PlayerSkillInventoryModule : MonoBehaviour, IModule, ISaveable, IPlayerSkillInventoryModule
+    public class PlayerSkillInventoryModule : MonoBehaviour, IModule, IPlayerSkillInventoryModule
     {
-        [field: SerializeField] public SaveIdData SaveId { get; private set; }
         [SerializeField] private PlayerSkillDataTableSo playerSkillTable;
 
         public event Action OnInventoryChanged;
@@ -120,6 +119,17 @@ namespace UI.InventorySystem
             return true;
         }
 
+        public bool TryAcquireSkill(PlayerSkillDataSo skillData, int duplicateShardAmount = 1)
+        {
+            if (skillData == null)
+                return false;
+
+            if (Contains(skillData.skillId))
+                return TryAddShards(skillData.skillId, duplicateShardAmount);
+
+            return TryAddSkill(skillData);
+        }
+
         public bool TryAddShards(PlayerSkill skillId, int amount)
         {
             if (amount <= 0)
@@ -176,79 +186,6 @@ namespace UI.InventorySystem
 
             NotifyInventoryChanged();
             return true;
-        }
-
-        public string GetSaveData()
-        {
-            PlayerSkillInventorySaveData saveData = new PlayerSkillInventorySaveData
-            {
-                nextAcquireOrder = _nextAcquireOrder,
-                entries = new List<PlayerSkillInventoryEntrySaveData>(_entries.Count)
-            };
-
-            foreach (PlayerSkillInventoryEntry entry in _entries)
-            {
-                saveData.entries.Add(new PlayerSkillInventoryEntrySaveData
-                {
-                    skillAssetIndex = entry.currentSkillAssetIndex,
-                    acquiredOrder = entry.acquiredOrder,
-                    shardCount = entry.shardCount
-                });
-            }
-
-            return JsonUtility.ToJson(saveData);
-        }
-
-        public void RestoreData(string data)
-        {
-            ClearRuntimeState();
-            BuildSkillLookup();
-
-            if (string.IsNullOrEmpty(data))
-            {
-                NotifyInventoryChanged();
-                return;
-            }
-
-            PlayerSkillInventorySaveData saveData = JsonUtility.FromJson<PlayerSkillInventorySaveData>(data);
-
-            if (saveData.entries != null)
-            {
-                foreach (PlayerSkillInventoryEntrySaveData entrySaveData in saveData.entries)
-                {
-                    if (!TryResolveSkillData(entrySaveData.skillAssetIndex, out PlayerSkillDataSo skillData))
-                    {
-                        Debug.LogWarning(
-                            $"{nameof(PlayerSkillInventoryModule)} : AssetIndex {entrySaveData.skillAssetIndex} 에 해당하는 스킬 데이터를 찾을 수 없습니다.");
-                        continue;
-                    }
-
-                    if (_entryIndexBySkillId.ContainsKey(skillData.skillId))
-                    {
-                        Debug.LogWarning(
-                            $"{nameof(PlayerSkillInventoryModule)} : 중복 skillId({skillData.skillId}) 가 저장 데이터에 있습니다. 뒤 항목은 무시합니다.");
-                        continue;
-                    }
-
-                    PlayerSkillInventoryEntry entry = new PlayerSkillInventoryEntry
-                    {
-                        skillId = skillData.skillId,
-                        currentSkillAssetIndex = skillData.AssetIndex,
-                        acquiredOrder = entrySaveData.acquiredOrder,
-                        shardCount = Mathf.Max(0, entrySaveData.shardCount)
-                    };
-
-                    _entries.Add(entry);
-                }
-            }
-
-            _entries.Sort((left, right) => left.acquiredOrder.CompareTo(right.acquiredOrder));
-            RebuildEntryIndexLookup();
-
-            int nextOrderFromEntries = _entries.Count == 0 ? 0 : _entries.Max(entry => entry.acquiredOrder) + 1;
-            _nextAcquireOrder = Mathf.Max(saveData.nextAcquireOrder, nextOrderFromEntries);
-
-            NotifyInventoryChanged();
         }
 
         private void ClearRuntimeState()

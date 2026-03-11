@@ -1,186 +1,117 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Agents.StatSystem;
-using ItemSystem;
+using Gamelib.EventSystem;
 using Modules;
 using Systems.CoreSystem;
 using Systems.GameEvents;
+using UI.InventorySystem;
 using UnityEngine;
 
 namespace Agents.Players
 {
-    public class PlayerData : MonoBehaviour, IModule, ISaveable, IPlayerCurrencyWallet
+    public class PlayerData : MonoBehaviour, IModule, ISaveable
     {
-        [SerializeField] private LevelDataSo levelData;
-        [field: SerializeField] public int CurrentExp { get; private set; }
-        [field: SerializeField] public int Level { get; private set; }
-        [field: SerializeField] public int SkillPoint { get; private set; }
-        [field: SerializeField] public int StatPoint { get; private set; }
+        [field: SerializeField] public SaveIdData SaveId { get; private set; }
         [field: SerializeField] public int Gold { get; private set; }
-        [field: SerializeField] public PlayerInventory Inventory { get; private set; }
-        
-        private Player _player;
-        private IStatModule _statModule;
+        [field: SerializeField] public int Gem { get; private set; }
+
+        public Player Player { get; private set; }
+        public EventChannelSO PlayerChannel => Player != null ? Player.PlayerEventChannel : null;
+
+        public IPlayerSkillInventoryModule SkillInventory { get; private set; }
+        public IPlayerDashLoadoutModule DashLoadout { get; private set; }
+
+        public event Action<int> OnGoldChanged;
+        public event Action<int> OnGemChanged;
+
         public void Initialize(ModuleOwner owner)
         {
-            _player = owner as Player;
-            _statModule = owner.GetModule<IStatModule>();
-            Debug.Assert(_player != null, $"{gameObject.name} is not attached to player");
-            Debug.Assert(_statModule != null, $"{gameObject.name} is not attached to stat module");
-            Debug.Assert(Inventory != null, $"{gameObject.name} is not attached to PlayerInventory");
-            
-            _player.PlayerEventChannel.AddListener<AddExpEvent>(HandleAddExpEvent);
-            _player.PlayerEventChannel.AddListener<PickUpItemEvent>(HandlePickUpItemEvent);
+            Player = owner as Player;
+            Debug.Assert(Player != null, $"{gameObject.name} is not attached to Player");
+
+            SkillInventory = owner.GetModule<IPlayerSkillInventoryModule>();
+            DashLoadout = owner.GetModule<IPlayerDashLoadoutModule>();
         }
-
-        private void HandlePickUpItemEvent(PickUpItemEvent evt)
-        {
-            if (Inventory == null) return;
-            ItemObject target = evt.PickableItem;
-
-            if (Inventory.CanAddItem(target.ItemData, target.Amount))
-            {
-                Inventory.AddItem(target.ItemData, target.Amount);
-                target.PickUpComplete(true);
-            }
-            else
-            {
-                target.PickUpComplete(false);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_player != null)
-            {
-                _player.PlayerEventChannel.RemoveListener<AddExpEvent>(HandleAddExpEvent);
-                _player.PlayerEventChannel.RemoveListener<PickUpItemEvent>(HandlePickUpItemEvent);
-            }
-        }   
 
         private void Start()
         {
-            _player.PlayerEventChannel.RaiseEvent(PlayerEvents.PlayerDataSetUpComplete.Init(this));
+            PlayerChannel?.RaiseEvent(PlayerEvents.PlayerDataSetUpComplete.Init(this));
         }
 
-        private void HandleAddExpEvent(AddExpEvent obj)
+        public void AddGold(int amount)
         {
-            CurrentExp += obj.Amount;
-
-            while (TryLevelUp())
-            {
-                _player.PlayerEventChannel.RaiseEvent(PlayerEvents.LevelUpEvent.Init(Level));
-            }
+            if (amount <= 0) return;
+            Gold += amount;
+            OnGoldChanged?.Invoke(Gold);
         }
 
-        private bool TryLevelUp()
+        public bool TrySpendGold(int amount)
         {
-            if (levelData.IsMaxLevel(Level)) return false;
+            if (amount <= 0 || Gold < amount)
+                return false;
 
-            int requiredExp = levelData.GetRequiredExp(Level);
-            if (CurrentExp >= requiredExp)
-            {
-                CurrentExp -= requiredExp;
-                Level++;
-                SkillPoint += levelData.skillPerLevelUp;
-                StatPoint += levelData.statPerLevelUp;
-                return true;
-            }
-            
-            return false;
+            Gold -= amount;
+            OnGoldChanged?.Invoke(Gold);
+            return true;
         }
 
-        #region 세이브 로직
+        public void AddGem(int amount)
+        {
+            if (amount <= 0) return;
+            Gem += amount;
+            OnGemChanged?.Invoke(Gem);
+        }
 
-        [Header("Save Data Settings")]
-        
-        [field: SerializeField] public SaveIdData SaveId { get; private set; }
-        
+        public bool TrySpendGem(int amount)
+        {
+            if (amount <= 0 || Gem < amount)
+                return false;
+
+            Gem -= amount;
+            OnGemChanged?.Invoke(Gem);
+            return true;
+        }
+
+        public void SetGold(int amount)
+        {
+            Gold = Mathf.Max(0, amount);
+            OnGoldChanged?.Invoke(Gold);
+        }
+
+        public void SetGem(int amount)
+        {
+            Gem = Mathf.Max(0, amount);
+            OnGemChanged?.Invoke(Gem);
+        }
+
         [Serializable]
-        public struct StatSaveData
+        private struct PlayerSaveData
         {
-            public int assetIndex;
-            public float baseValue;
-        }
-        
-        [Serializable]
-        public struct PlayerSaveData
-        {
-            public int currentExp;
-            public int level;
-            public int skillPoint;
             public int gold;
-            public int statPoint;
-            public List<StatSaveData> stats;
+            public int gem;
         }
+
         public string GetSaveData()
         {
-            List<StatSaveData> saveStatData = _statModule.GetAllStats()
-                .Select(stat => new StatSaveData
-                {
-                    assetIndex = stat.AssetIndex,
-                    baseValue = stat.BaseValue
-                }).ToList();
-            
             PlayerSaveData saveData = new PlayerSaveData
             {
-                currentExp = CurrentExp,
-                level = Level,
-                skillPoint = SkillPoint,
                 gold = Gold,
-                statPoint = StatPoint,
-                stats = saveStatData
+                gem = Gem
             };
+
             return JsonUtility.ToJson(saveData);
         }
 
         public void RestoreData(string data)
         {
-            PlayerSaveData saveData = JsonUtility.FromJson<PlayerSaveData>(data);
-            CurrentExp = saveData.currentExp;
-            Level = saveData.level;
-            SkillPoint = saveData.skillPoint;
-            StatPoint = saveData.statPoint;
-            Gold = saveData.gold;
-            
-            foreach (StatSaveData statData in saveData.stats)
-            {
-                if (_statModule.TryGetStat(statData.assetIndex, out StatSO stat))
-                {
-                    stat.BaseValue = statData.baseValue;
-                }
-            }
-        }
-        #endregion
-
-        public int CurrentGold => Gold;
-        public bool CanSpendGold(int amount)
-        {
-            if (amount <= 0)
-                return true;
-            
-            return Gold >= amount;
-        }
-
-        public bool TrySpendGold(int amount)
-        {
-            if (amount <= 0)
-                return true;
-            
-            if (Gold < amount)
-                return false;
-            
-            Gold -= amount;
-            return true;
-        }
-
-        public void AddGold(int amount)
-        {
-            if (amount <= 0)
+            if (string.IsNullOrEmpty(data))
                 return;
-            
-            Gold += amount;
+
+            PlayerSaveData saveData = JsonUtility.FromJson<PlayerSaveData>(data);
+            Gold = Mathf.Max(0, saveData.gold);
+            Gem = Mathf.Max(0, saveData.gem);
+
+            OnGoldChanged?.Invoke(Gold);
+            OnGemChanged?.Invoke(Gem);
         }
     }
 }

@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Agents.FSM;
-using Agents.Players;
-using Agents.Players.States;
 using Agents.StatSystem;
 using CombatSystem;
 using Modules;
-using Systems.Database;
 using UnityEngine;
 
 namespace Agents.Enemies.Skills
@@ -20,13 +16,9 @@ namespace Agents.Enemies.Skills
         private Dictionary<int, AbstractEnemySkill> _skilDict;
         
         private IStatModule _statModule;
-        private float _currentPhysicalDamage = 1f;
-        private float _currentInt = 1f;
-        private float _currentStr = 1f;
+        private float _currentDamage = 1f;
         
-        [field: SerializeField] public StatSO PhysicalDamageStat { get; private set; }
-        [field: SerializeField] public StatSO IntStat { get; private set; }
-        [field: SerializeField] public StatSO StrStat { get; private set; }
+        [field: SerializeField] public StatSO DamageStat { get; private set; }
         public void Initialize(ModuleOwner owner)
         {
             Owner = owner;
@@ -43,25 +35,19 @@ namespace Agents.Enemies.Skills
         
         public void AfterInit()
         {
-            _currentPhysicalDamage = _statModule.SubscribeStat(PhysicalDamageStat.AssetIndex, HandleDamageChange, _currentPhysicalDamage);
-            _currentInt = _statModule.SubscribeStat(IntStat.AssetIndex, HandleIntChange, _currentInt);
-            _currentStr = _statModule.SubscribeStat(StrStat.AssetIndex, HandleStrChange, _currentStr);
+            _currentDamage = _statModule.SubscribeStat(DamageStat.AssetIndex, HandleDamageChange, _currentDamage);
         }
         
         private void OnDestroy()
         {
             if (_statModule != null)
             {
-                _statModule.UnSubscribeStat(PhysicalDamageStat.AssetIndex, HandleDamageChange);
-                _statModule.UnSubscribeStat(IntStat.AssetIndex, HandleIntChange);
-                _statModule.UnSubscribeStat(StrStat.AssetIndex, HandleStrChange);
+                _statModule.UnSubscribeStat(DamageStat.AssetIndex, HandleDamageChange);
             }
         }
 
         #region 스텟 헨들러
-        private void HandleDamageChange(StatSO stat, float current, float previous) => _currentPhysicalDamage = current;
-        private void HandleIntChange(StatSO stat, float current, float previous) => _currentInt = current;
-        private void HandleStrChange(StatSO stat, float current, float previous) => _currentStr = current;
+        private void HandleDamageChange(StatSO stat, float current, float previous) => _currentDamage = current;
         #endregion
         
         public bool CanUseSkill(int skillIndex, GameObject target = null)
@@ -89,13 +75,10 @@ namespace Agents.Enemies.Skills
 
         public float GetBaseDamage(SkillDataSO skillData)
         {
-            return skillData.skillType switch
-            {
-                SkillType.PHYSICAL => _currentPhysicalDamage * (1f + _currentStr / 100) * skillData.damageMultiplier,
-                SkillType.MAGIC => _currentPhysicalDamage * (1f + _currentInt / 100) * skillData.damageMultiplier,
-                SkillType.NONE_DAMAGE => 0,
-                _ => 0
-            };
+            if (skillData == null)
+                return 0f;
+
+            return _currentDamage * skillData.damageMultiplier;
         }
     }
 }

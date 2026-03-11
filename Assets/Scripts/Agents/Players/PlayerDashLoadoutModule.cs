@@ -70,38 +70,37 @@ namespace Agents.Players
             return _isCurrentSkillStartedByDash;
         }
         
-        public int ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData)
+        public bool ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData)
         {
-            if (newSkillData == null || newSkillData.skillId != skillId || dashSlots == null)
-                return 0;
+            if (newSkillData == null)
+                return false;
 
-            int replacedCount = 0;
+            bool changed = false;
 
             for (int i = 0; i < dashSlots.Length; i++)
             {
                 DashSkillSlot slot = dashSlots[i];
 
-                if (slot.equippedSkill == null)
+                if (!slot.isUnlocked || slot.equippedSkill == null)
                     continue;
 
                 if (slot.equippedSkill.skillId != skillId)
                     continue;
 
-                if (slot.equippedSkill == newSkillData)
+                if (slot.equippedSkill.AssetIndex == newSkillData.AssetIndex)
                     continue;
 
                 slot.equippedSkill = newSkillData;
                 dashSlots[i] = slot;
-                replacedCount++;
+                changed = true;
             }
 
-            if (replacedCount > 0)
-            {
-                NotifyDashLoadoutChanged();
-                NotifyDashPreviewChanged();
-            }
+            if (!changed)
+                return false;
 
-            return replacedCount;
+            NotifyDashLoadoutChanged();
+            NotifyDashPreviewChanged();
+            return true;
         }
 
         #region 조회

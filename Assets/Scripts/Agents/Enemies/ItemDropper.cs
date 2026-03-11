@@ -13,7 +13,6 @@ namespace Agents.Enemies
 
         public void DropItem()
         {
-            PlayerChannel.RaiseEvent(PlayerEvents.AddExpEvent.Init(itemDropTable.dropExp));
         }
     }
 }

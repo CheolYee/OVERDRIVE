@@ -28,6 +28,6 @@ namespace Agents.Players
         bool UnequipDashSkill(int slotIndex);
         bool SwapDashSlots(int fromIndex, int toIndex);
 
-        int ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData);
+        bool ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData);
     }
 }

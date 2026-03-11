@@ -3,18 +3,9 @@ using UnityEngine;
 
 namespace CombatSystem
 {
-    public enum SkillType
-    {
-        PHYSICAL,
-        MAGIC,
-        NONE_DAMAGE
-    }
-    
     [CreateAssetMenu(fileName = "Skill data", menuName = "Combat/Skill data", order = 15)]
     public class SkillDataSO : IndexedAsset
     {
-        public SkillType skillType;
-        
         public float minRange;
         public float maxRange;
         public string attackName;

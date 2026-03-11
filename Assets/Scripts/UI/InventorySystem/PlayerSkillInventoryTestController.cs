@@ -9,9 +9,12 @@ namespace UI.InventorySystem
         [SerializeField] private Player player;
         [SerializeField] private PlayerSkillDataSo testSkillA;
         [SerializeField] private PlayerSkillDataSo testSkillB;
+        [SerializeField] private int shardAmount = 1;
+        [SerializeField] private int testGold = 999;
 
         private IPlayerSkillInventoryModule _inventoryModule;
-        private IPlayerSkillProgressionModule _progressionModule;
+        private PlayerSkillProgressionModule _progressionModule;
+        private PlayerData _playerData;
 
         private void Start()
         {
@@ -21,11 +24,12 @@ namespace UI.InventorySystem
             if (player == null)
                 player = GetComponentInParent<Player>();
 
-            if (player != null)
-            {
-                _inventoryModule = player.GetModule<IPlayerSkillInventoryModule>();
-                _progressionModule = player.GetModule<IPlayerSkillProgressionModule>();
-            }
+            if (player == null)
+                return;
+
+            _inventoryModule = player.GetModule<IPlayerSkillInventoryModule>();
+            _progressionModule = player.GetComponent<PlayerSkillProgressionModule>();
+            _playerData = player.GetComponent<PlayerData>();
         }
 
         [ContextMenu("Acquire Skill A")]
@@ -40,25 +44,64 @@ namespace UI.InventorySystem
             _progressionModule?.TryAcquireSkill(testSkillB);
         }
 
-        [ContextMenu("Acquire Skill A Again")]
-        public void AcquireSkillAAgain()
+        [ContextMenu("Add Shards To Skill A")]
+        public void AddShardsToSkillA()
         {
-            _progressionModule?.TryAcquireSkill(testSkillA);
+            if (testSkillA == null || _inventoryModule == null)
+                return;
+
+            _inventoryModule.TryAddShards(testSkillA.skillId, shardAmount);
         }
 
-        [ContextMenu("Log Skill A Info")]
-        public void LogSkillAInfo()
+        [ContextMenu("Set Test Gold")]
+        public void SetTestGold()
+        {
+            _playerData?.SetGold(testGold);
+        }
+
+        [ContextMenu("Upgrade Skill A")]
+        public void UpgradeSkillA()
+        {
+            if (testSkillA == null || _progressionModule == null)
+                return;
+
+            bool result = _progressionModule.TryUpgradeSkill(testSkillA.skillId);
+            Debug.Log($"Upgrade Skill A Result = {result}");
+        }
+
+        [ContextMenu("Log Upgrade Info A")]
+        public void LogUpgradeInfoA()
+        {
+            if (testSkillA == null || _progressionModule == null)
+                return;
+
+            if (_progressionModule.TryGetUpgradeInfo(testSkillA.skillId, out PlayerSkillUpgradeInfo info))
+            {
+                Debug.Log(
+                    $"Current={info.currentSkill?.name}, Next={info.nextSkill?.name}, " +
+                    $"Level={info.currentLevel}/{info.maxLevel}, " +
+                    $"Shards={info.shardCount}, RequiredShards={info.requiredShards}, RequiredGold={info.requiredGold}, " +
+                    $"CanUpgrade={info.canUpgrade}, IsMax={info.isMaxLevel}");
+            }
+            else
+            {
+                Debug.Log("Upgrade info unavailable.");
+            }
+        }
+
+        [ContextMenu("Log Skill A Entry")]
+        public void LogSkillAEntry()
         {
             if (testSkillA == null || _inventoryModule == null)
                 return;
 
             if (_inventoryModule.TryGetEntry(testSkillA.skillId, out PlayerSkillInventoryEntry entry))
             {
-                Debug.Log($"Skill: {entry.skillId}, AssetIndex: {entry.currentSkillAssetIndex}, Shards: {entry.shardCount}, Order: {entry.acquiredOrder}");
+                Debug.Log($"Skill={entry.skillId}, AssetIndex={entry.currentSkillAssetIndex}, Shards={entry.shardCount}, Order={entry.acquiredOrder}");
             }
             else
             {
-                Debug.Log("Skill A is not in inventory.");
+                Debug.Log("Skill A is not owned.");
             }
         }
     }
