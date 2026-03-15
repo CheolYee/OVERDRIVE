@@ -1,47 +1,55 @@
+using System;
 using Agents.Players;
 using Agents.Players.Skills;
+using Gamelib.EventSystem;
+using Systems.GameEvents;
 using UnityEngine;
 
 namespace UI.InventorySystem
 {
-    public class PlayerSkillInventoryTestController : MonoBehaviour
+    public class PlayerSkillInventoryTestController : MonoBehaviour, IHandlePlayerDataSetUp
     {
-        [SerializeField] private Player player;
+        [SerializeField] private EventChannelSO playerEventChannel;
         [SerializeField] private PlayerSkillDataSo testSkillA;
         [SerializeField] private PlayerSkillDataSo testSkillB;
         [SerializeField] private int shardAmount = 1;
         [SerializeField] private int testGold = 999;
 
+        private Player _player;
         private IPlayerSkillInventoryModule _inventoryModule;
-        private PlayerSkillProgressionModule _progressionModule;
         private PlayerData _playerData;
 
-        private void Start()
+        private void Awake()
         {
-            if (player == null)
-                player = GetComponent<Player>();
-
-            if (player == null)
-                player = GetComponentInParent<Player>();
-
-            if (player == null)
-                return;
-
-            _inventoryModule = player.GetModule<IPlayerSkillInventoryModule>();
-            _progressionModule = player.GetComponent<PlayerSkillProgressionModule>();
-            _playerData = player.GetComponent<PlayerData>();
+            playerEventChannel?.AddListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
+        }
+        
+        private void OnDestroy()
+        {
+            playerEventChannel?.RemoveListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
+        }
+        
+        public void HandlePlayerDataSetUp(PlayerDataSetUpEvent evt)
+        {
+            _playerData = evt.PlayerData;
+            _player = evt.PlayerData.Player;
+            _inventoryModule = _player.GetModule<IPlayerSkillInventoryModule>();
+            
+            Debug.Assert(_playerData != null, "[PlayerSkillInventoryTestController] : 플레이어 데이터가 없습니다.");
+            Debug.Assert(_player != null, "[PlayerSkillInventoryTestController] : 플레이어가 없습니다.");
+            Debug.Assert(_inventoryModule != null, "[PlayerSkillInventoryTestController] : 플레이어 스킬 인벤토리 모듈이 없습니다.");
         }
 
         [ContextMenu("Acquire Skill A")]
         public void AcquireSkillA()
         {
-            _progressionModule?.TryAcquireSkill(testSkillA);
+            _inventoryModule?.TryAcquireSkill(testSkillA);
         }
 
         [ContextMenu("Acquire Skill B")]
         public void AcquireSkillB()
         {
-            _progressionModule?.TryAcquireSkill(testSkillB);
+            _inventoryModule?.TryAcquireSkill(testSkillB);
         }
 
         [ContextMenu("Add Shards To Skill A")]
@@ -57,36 +65,6 @@ namespace UI.InventorySystem
         public void SetTestGold()
         {
             _playerData?.SetGold(testGold);
-        }
-
-        [ContextMenu("Upgrade Skill A")]
-        public void UpgradeSkillA()
-        {
-            if (testSkillA == null || _progressionModule == null)
-                return;
-
-            bool result = _progressionModule.TryUpgradeSkill(testSkillA.skillId);
-            Debug.Log($"Upgrade Skill A Result = {result}");
-        }
-
-        [ContextMenu("Log Upgrade Info A")]
-        public void LogUpgradeInfoA()
-        {
-            if (testSkillA == null || _progressionModule == null)
-                return;
-
-            if (_progressionModule.TryGetUpgradeInfo(testSkillA.skillId, out PlayerSkillUpgradeInfo info))
-            {
-                Debug.Log(
-                    $"Current={info.currentSkill?.name}, Next={info.nextSkill?.name}, " +
-                    $"Level={info.currentLevel}/{info.maxLevel}, " +
-                    $"Shards={info.shardCount}, RequiredShards={info.requiredShards}, RequiredGold={info.requiredGold}, " +
-                    $"CanUpgrade={info.canUpgrade}, IsMax={info.isMaxLevel}");
-            }
-            else
-            {
-                Debug.Log("Upgrade info unavailable.");
-            }
         }
 
         [ContextMenu("Log Skill A Entry")]

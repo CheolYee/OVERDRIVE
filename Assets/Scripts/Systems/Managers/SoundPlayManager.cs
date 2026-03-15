@@ -17,7 +17,9 @@ namespace Systems.Managers
         
         public void PlayBgm(BgmSounds bgmSound, Vector3 position)
         {
-            SoundChannel.RaiseEvent(SoundEvents.PlaySoundEvent.Init(position, bgmSoundList.sounds[(int)bgmSound]));
+            bool isLoop = bgmSoundList.sounds[(int)bgmSound].loop;
+            SoundChannel.RaiseEvent(SoundEvents.PlaySoundEvent.Init(position, bgmSoundList.sounds[(int)bgmSound],
+            isLoop ? 1 : 0));
         }
     }
 }

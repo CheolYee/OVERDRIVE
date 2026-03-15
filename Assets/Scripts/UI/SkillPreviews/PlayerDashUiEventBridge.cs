@@ -1,42 +1,38 @@
+using System;
 using Agents.Players;
 using Agents.Players.Skills;
+using Gamelib.EventSystem;
 using Systems.GameEvents;
 using UnityEngine;
 
 namespace UI.SkillPreviews
 {
-    public class PlayerDashUiEventBridge : MonoBehaviour
+    public class PlayerDashUiEventBridge : MonoBehaviour, IHandlePlayerDataSetUp
     {
-        [SerializeField] private Player player;
+        [SerializeField] private EventChannelSO playerEventChannel;
 
         private IPlayerDashLoadoutModule _dashLoadoutModule;
+        private Player _player;
         private bool _isSubscribed;
 
         private void Awake()
         {
-            if (player == null)
-                player = GetComponent<Player>();
+            playerEventChannel.AddListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
+        }
 
-            if (player == null)
-                player = GetComponentInParent<Player>();
+        public void HandlePlayerDataSetUp(PlayerDataSetUpEvent evt)
+        {
+            _player = evt.PlayerData.Player;
+            _dashLoadoutModule = _player.GetModule<IPlayerDashLoadoutModule>();
+            Debug.Assert(_player != null, $"[PlayerDashUiEventBridge] : 플레이어가 없습니다.");
+            Debug.Assert(_dashLoadoutModule != null, $"[PlayerDashUiEventBridge] : 로드아웃 대쉬 모듈이 없습니다.");
         }
 
         private void Start()
         {
-            if (player == null)
-            {
-                Debug.LogError($"{nameof(PlayerDashUiEventBridge)} : Player reference is null.");
-                return;
-            }
-
-            _dashLoadoutModule = player.GetModule<IPlayerDashLoadoutModule>();
-            Debug.Assert(_dashLoadoutModule != null, $"{gameObject.name} is not attached to player dash loadout module.");
-
-            if (_dashLoadoutModule == null)
-                return;
+            if (_dashLoadoutModule == null) return;
 
             Subscribe();
-
             PublishLoadoutChanged();
             PublishPreviewChanged();
         }
@@ -83,7 +79,7 @@ namespace UI.SkillPreviews
 
         private void PublishLoadoutChanged()
         {
-            if (player == null || player.PlayerEventChannel == null || _dashLoadoutModule == null)
+            if (_player == null || _player.PlayerEventChannel == null || _dashLoadoutModule == null)
                 return;
 
             int slotCount = _dashLoadoutModule.GetDashSlotCount();
@@ -98,18 +94,18 @@ namespace UI.SkillPreviews
                 };
             }
 
-            player.PlayerEventChannel.RaiseEvent(
+            _player.PlayerEventChannel.RaiseEvent(
                 DashEvents.PlayerDashLoadoutChanged.Init(slotsSnapshot));
         }
 
         private void PublishPreviewChanged()
         {
-            if (player == null || player.PlayerEventChannel == null || _dashLoadoutModule == null)
+            if (_player == null || _player.PlayerEventChannel == null || _dashLoadoutModule == null)
                 return;
 
             _dashLoadoutModule.TryGetDashPreview(out PlayerSkillDataSo currentSkill, out PlayerSkillDataSo nextSkill);
 
-            player.PlayerEventChannel.RaiseEvent(
+            _player.PlayerEventChannel.RaiseEvent(
                 DashEvents.PlayerDashPreviewChanged.Init(currentSkill, nextSkill));
         }
     }

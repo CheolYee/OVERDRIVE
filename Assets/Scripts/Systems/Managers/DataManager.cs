@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Gamelib.EventSystem;
+using JetBrains.Annotations;
 using Systems.CoreSystem;
 using Systems.GameEvents;
 using UnityEngine;
@@ -16,92 +18,307 @@ namespace Systems.Managers
             public int id;
             public string data;
         }
-        
+
         [Serializable]
-        public struct DataCollection
+        private struct SaveFileInfo
         {
-            public List<SaveData> collection;
+            [UsedImplicitly] public int id;
+            [UsedImplicitly] public string fileName;
+            [UsedImplicitly] public string typeName;
+            [UsedImplicitly] public string objectName;
         }
 
-        [SerializeField] private string prefKey = "saveData";
+        [Serializable]
+        private struct SaveFileIndex
+        {
+            [UsedImplicitly] public List<SaveFileInfo> items;
+        }
 
-        //이번씬에서 사용하지 않는 세이브된 데이터를 가지고 있다.
-        private List<SaveData> _unUsedData = new List<SaveData>();
+        [Header("Channel")]
         [field: SerializeField] public EventChannelSO SystemChannel { get; private set; }
+
+        [Header("Save Settings")]
+        [SerializeField] private string saveFolderName = "SaveData";
+        [SerializeField] private bool applyJsonFilesToGameData = true;
+
+        [Header("Auto Save")]
+        [SerializeField] private bool saveOnApplicationPause = true;
+        [SerializeField] private bool saveOnApplicationQuit = true;
+
+        [Header("Debug")]
+        [SerializeField] private bool logSavePathOnAwake = true;
+        [SerializeField] private bool logSaveLoad = true;
+
+        private readonly List<SaveData> _unusedData = new();
+
+        private string SaveFolderPath => Path.Combine(Application.persistentDataPath, saveFolderName);
 
         private void Awake()
         {
-            SystemChannel.AddListener<SavePrefEvent>(HandleSavePrefEvent);
-            SystemChannel.AddListener<LoadPrefEvent>(HandleLoadPrefEvent);
+            Debug.Assert(SystemChannel != null, $"{name} : SystemChannel is null");
+
+            EnsureSaveDirectoryExists();
+
+            if (SystemChannel != null)
+            {
+                SystemChannel.AddListener<SavePrefEvent>(HandleSavePrefEvent);
+                SystemChannel.AddListener<LoadPrefEvent>(HandleLoadPrefEvent);
+            }
+
+            if (logSavePathOnAwake)
+                Debug.Log($"[DataManager] Save Path : {SaveFolderPath}");
         }
 
         private void OnDestroy()
         {
+            if (SystemChannel == null)
+                return;
+
             SystemChannel.RemoveListener<SavePrefEvent>(HandleSavePrefEvent);
             SystemChannel.RemoveListener<LoadPrefEvent>(HandleLoadPrefEvent);
         }
 
-        #region 데이터 세이브 로직
+        private void OnApplicationQuit()
+        {
+            if (saveOnApplicationQuit)
+                SaveToJsonFiles();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus && saveOnApplicationPause)
+                SaveToJsonFiles();
+        }
 
         private void HandleSavePrefEvent(SavePrefEvent evt)
         {
-            string saveData = GetSceneSaveData();
-            PlayerPrefs.SetString(prefKey, saveData);
-            Debug.Log($"Save Data : {saveData}");
+            SaveToJsonFiles();
         }
 
-        private string GetSceneSaveData()
-        {
-            IEnumerable<ISaveable> saveableObjects = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
-            
-            List<SaveData> toSaveData = new List<SaveData>();
-            foreach (ISaveable saveable in saveableObjects)
-            {
-                toSaveData.Add(new SaveData{id = saveable.SaveId.Id, data = saveable.GetSaveData()});
-            }
-            toSaveData.AddRange(_unUsedData); //이번 씬에서 사용하지 않았던 데이터도 같이 저장한다.
-            DataCollection dataCollection = new DataCollection{collection = toSaveData};
-            
-            return JsonUtility.ToJson(dataCollection);
-        }
-        
-        #endregion
-
-        #region 데이터 로드 로직
         private void HandleLoadPrefEvent(LoadPrefEvent evt)
         {
-            string loadJson = PlayerPrefs.GetString(prefKey, string.Empty);
-            RestoreData(loadJson);
+            if (!applyJsonFilesToGameData)
+            {
+                Debug.Log("[DataManager] applyJsonFilesToGameData is false. Load skipped.");
+                return;
+            }
+
+            LoadFromJsonFiles();
         }
 
-        private void RestoreData(string json)
+        private void EnsureSaveDirectoryExists()
         {
-            IEnumerable<ISaveable> saveables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
-            DataCollection parsedData = string.IsNullOrEmpty(json) 
-                ? new DataCollection() 
-                : JsonUtility.FromJson<DataCollection>(json);
-            
-            _unUsedData.Clear();
+            if (!Directory.Exists(SaveFolderPath))
+                Directory.CreateDirectory(SaveFolderPath);
+        }
 
-            if (parsedData.collection != null)
+        private void SaveToJsonFiles()
+        {
+            EnsureSaveDirectoryExists();
+
+            IEnumerable<ISaveable> savableObjects =
+                FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
+
+            List<ISaveable> savableList = savableObjects
+                .Where(s => s.SaveId != null)
+                .ToList();
+
+            HashSet<int> usedIds = new();
+
+            foreach (ISaveable savable in savableList)
             {
-                foreach (var saveData in parsedData.collection)
+                int id = savable.SaveId.Id;
+
+                if (!usedIds.Add(id))
                 {
-                    ISaveable saveable = saveables.FirstOrDefault(s => s.SaveId.Id == saveData.id);
-                    if (saveable != null)
-                        saveable.RestoreData(saveData.data);
-                    else
-                        _unUsedData.Add(saveData);
+                    Debug.LogWarning($"[DataManager] Duplicate SaveId detected. id : {id}, type : {savable.GetType().Name}");
+                    continue;
+                }
+
+                string filePath = GetSaveFilePath(id, savable);
+                string json = savable.GetSaveData();
+
+                File.WriteAllText(filePath, json);
+            }
+
+            foreach (SaveData saveData in _unusedData)
+            {
+                if (usedIds.Contains(saveData.id))
+                    continue;
+
+                string filePath = GetUnusedSaveFilePath(saveData.id);
+                File.WriteAllText(filePath, saveData.data);
+            }
+
+            SaveIndexFile(savableList);
+
+            if (logSaveLoad)
+                Debug.Log($"[DataManager] Saved json files to : {SaveFolderPath}");
+        }
+
+        private void LoadFromJsonFiles()
+        {
+            EnsureSaveDirectoryExists();
+
+            IEnumerable<ISaveable> savableObjects =
+                FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ISaveable>();
+
+            Dictionary<int, ISaveable> savableMap = savableObjects
+                .Where(s => s.SaveId != null)
+                .GroupBy(s => s.SaveId.Id)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            _unusedData.Clear();
+
+            string[] jsonFiles = Directory.GetFiles(SaveFolderPath, "*.json");
+
+            foreach (string filePath in jsonFiles)
+            {
+                string fileName = Path.GetFileName(filePath);
+
+                if (string.Equals(fileName, "index.json", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (!TryParseSaveIdFromFileName(fileName, out int id))
+                {
+                    Debug.LogWarning($"[DataManager] Failed to parse SaveId from file name : {fileName}");
+                    continue;
+                }
+
+                string json = File.ReadAllText(filePath);
+
+                if (savableMap.TryGetValue(id, out ISaveable savable))
+                {
+                    savable.RestoreData(json);
+                }
+                else
+                {
+                    _unusedData.Add(new SaveData
+                    {
+                        id = id,
+                        data = json
+                    });
                 }
             }
+
+            if (logSaveLoad)
+                Debug.Log($"[DataManager] Loaded json files from : {SaveFolderPath}");
         }
 
-        #endregion
-        
-        [ContextMenu("Clear Pref Data")]
-        public void ClearPrefData()
+        private void SaveIndexFile(IEnumerable<ISaveable> savableObjects)
         {
-            PlayerPrefs.DeleteKey(prefKey);
+            List<SaveFileInfo> items = new();
+
+            foreach (ISaveable savable in savableObjects)
+            {
+                if (savable == null || savable.SaveId == null)
+                    continue;
+
+                MonoBehaviour mono = savable as MonoBehaviour;
+                string typeName = savable.GetType().Name;
+
+                items.Add(new SaveFileInfo
+                {
+                    id = savable.SaveId.Id,
+                    fileName = GetSaveFileName(savable.SaveId.Id, savable),
+                    typeName = typeName,
+                    objectName = mono != null ? mono.gameObject.name : typeName
+                });
+            }
+
+            SaveFileIndex index = new SaveFileIndex
+            {
+                items = items
+            };
+
+            string json = JsonUtility.ToJson(index, true);
+            string path = Path.Combine(SaveFolderPath, "index.json");
+            File.WriteAllText(path, json);
+        }
+
+        private string GetSaveFilePath(int id, ISaveable savable)
+        {
+            return Path.Combine(SaveFolderPath, GetSaveFileName(id, savable));
+        }
+
+        private string GetSaveFileName(int id, ISaveable savable)
+        {
+            string typeName = savable.GetType().Name;
+            typeName = MakeSafeFileName(typeName);
+            return $"{id}_{typeName}.json";
+        }
+
+        private string GetUnusedSaveFilePath(int id)
+        {
+            return Path.Combine(SaveFolderPath, $"{id}_UnusedData.json");
+        }
+
+        private bool TryParseSaveIdFromFileName(string fileName, out int id)
+        {
+            id = -1;
+
+            string nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            string[] split = nameWithoutExtension.Split('_');
+
+            if (split.Length == 0)
+                return false;
+
+            return int.TryParse(split[0], out id);
+        }
+
+        private string MakeSafeFileName(string fileName)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c.ToString(), string.Empty);
+            }
+
+            return fileName;
+        }
+
+        [ContextMenu("Save Now")]
+        public void SaveNow()
+        {
+            SaveToJsonFiles();
+        }
+
+        [ContextMenu("Load Now")]
+        public void LoadNow()
+        {
+            if (!applyJsonFilesToGameData)
+            {
+                Debug.LogWarning("[DataManager] applyJsonFilesToGameData is false. Load skipped.");
+                return;
+            }
+
+            LoadFromJsonFiles();
+        }
+
+        [ContextMenu("Clear Save Files")]
+        public void ClearSaveFiles()
+        {
+            if (!Directory.Exists(SaveFolderPath))
+            {
+                _unusedData.Clear();
+                return;
+            }
+
+            string[] files = Directory.GetFiles(SaveFolderPath);
+
+            foreach (string file in files)
+            {
+                File.Delete(file);
+            }
+
+            _unusedData.Clear();
+            Debug.Log("[DataManager] Cleared all save files.");
+        }
+
+        [ContextMenu("Open Save Folder")]
+        public void OpenSaveFolder()
+        {
+            EnsureSaveDirectoryExists();
+            Application.OpenURL("file://" + SaveFolderPath);
         }
     }
 }

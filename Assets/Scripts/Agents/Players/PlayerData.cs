@@ -31,12 +31,11 @@ namespace Agents.Players
             SkillInventory = owner.GetModule<IPlayerSkillInventoryModule>();
             DashLoadout = owner.GetModule<IPlayerDashLoadoutModule>();
         }
-
+        
         private void Start()
         {
-            PlayerChannel?.RaiseEvent(PlayerEvents.PlayerDataSetUpComplete.Init(this));
+            PlayerChannel?.RaiseEvent(PlayerEvents.PlayerDataSetUpEvent.Init(this));
         }
-
         public void AddGold(int amount)
         {
             if (amount <= 0) return;
@@ -98,7 +97,7 @@ namespace Agents.Players
                 gem = Gem
             };
 
-            return JsonUtility.ToJson(saveData);
+            return JsonUtility.ToJson(saveData, true);
         }
 
         public void RestoreData(string data)

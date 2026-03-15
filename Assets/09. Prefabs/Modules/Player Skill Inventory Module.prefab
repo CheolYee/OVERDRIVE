@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9297ace7c1264cb3b8a819503ea1b4b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SaveId>k__BackingField: {fileID: 11400000, guid: d391d38290554de4298a0475594885a0, type: 2}
   playerSkillTable: {fileID: 11400000, guid: 398404f7644e79245b1c698083b21c7f, type: 2}
 --- !u!114 &247448086084596110
 MonoBehaviour:
@@ -59,6 +58,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37b33160375547f88fb1265b9452a8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  playerEventChannel: {fileID: 11400000, guid: f353382fc533cbf4eacc1029e7071f85, type: 2}
   testSkillA: {fileID: 11400000, guid: 131c84e305f0dcb4da985d9fe75b6dd1, type: 2}
   testSkillB: {fileID: 11400000, guid: 8ac3a38a60edc5e40a13efb06d977c49, type: 2}
+  shardAmount: 1
+  testGold: 999

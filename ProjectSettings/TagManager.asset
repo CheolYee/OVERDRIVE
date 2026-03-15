@@ -41,6 +41,9 @@ TagManager:
   - name: BackGround
     uniqueID: 3078489237
     locked: 0
+  - name: Objects
+    uniqueID: 2266797113
+    locked: 0
   - name: Ground
     uniqueID: 1049934315
     locked: 0

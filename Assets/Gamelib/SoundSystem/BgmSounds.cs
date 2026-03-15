@@ -3,6 +3,7 @@ namespace Gamelib.SoundSystem
 {
     public enum BgmSounds
     {
-        BGM_ASDF = 0
+        LOBBY_BGM = 0,
+		COMBAT_BGM = 1
     }
 }

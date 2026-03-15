@@ -1,21 +1,32 @@
 ﻿using System;
 using Agents.Enemies.BT.Events;
 using CombatSystem;
+using Gamelib.ObjectPool.Runtime;
 using Systems.AnimationSystems;
 using Unity.Behavior;
 using UnityEngine;
 
 namespace Agents.Enemies
 {
-    public abstract class AbstractEnemy : Agent
+    public abstract class AbstractEnemy : Agent, IPoolable
     {
         [field: SerializeField] public AttackConfigSO AttackConfig { get; private set; }
+        [field: SerializeField] public PoolItemSo PoolItem { get; set; }
+        [SerializeField] private PoolManagerSo poolManager;
         public BehaviorGraphAgent BTAgent { get; private set; }
         public IMover Mover { get; private set; }
         public IRenderer Renderer { get; private set; }
         public ISkillModule SkillModule { get; private set; }
         
         private BlackboardVariable<StateChannel> _stateChannel;
+        
+        public GameObject GameObject => gameObject;
+        public void ResetItem()
+        {
+            gameObject.layer = LayerMask.NameToLayer("Enemy");
+            IsDead = false;
+            HealthModule.ResetHealth();
+        }
 
         protected override void InitializeComponents()
         {
@@ -63,7 +74,7 @@ namespace Agents.Enemies
         public void SetDead()
         {
             gameObject.layer = LayerMask.NameToLayer("DeadBody");
-            Destroy(gameObject, 3f);
+            poolManager.Push(this);
         }
 
         public void SetVariableValue<T>(string variableName, T value)

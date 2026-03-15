@@ -62,6 +62,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8510515397212853045}
   - component: {fileID: 2331210644720849769}
+  - component: {fileID: 2170514944908027059}
   m_Layer: 6
   m_Name: Player Dash UI Event Bridge
   m_TagString: Untagged
@@ -94,6 +95,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d79b6d03d03447fbb18a80f90a1b729, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+--- !u!114 &2170514944908027059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3939130104945332207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8df753a5c7b480f9e849704d53e2c53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}

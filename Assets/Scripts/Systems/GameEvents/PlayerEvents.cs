@@ -9,16 +9,26 @@ namespace Systems.GameEvents
     public static class PlayerEvents
     {
         public static readonly ActivePlayerEvent ActivePlayerEvent = new ActivePlayerEvent();
-        public static readonly AddExpEvent AddExpEvent = new AddExpEvent();
-        public static readonly LevelUpEvent LevelUpEvent = new LevelUpEvent();
-        public static readonly PlayerDataSetUpCompleteEvent PlayerDataSetUpComplete = new PlayerDataSetUpCompleteEvent();
+        public static readonly PlayerDataSetUpEvent PlayerDataSetUpEvent = new PlayerDataSetUpEvent();
+        
         public static readonly PickUpItemEvent PickUpItem = new PickUpItemEvent();
 
-        public static readonly RequestPlayerSkillUpgradeInfoEvent RequestPlayerSkillUpgradeInfo = new RequestPlayerSkillUpgradeInfoEvent();
-        public static readonly PlayerSkillUpgradeInfoChangedEvent PlayerSkillUpgradeInfoChanged = new PlayerSkillUpgradeInfoChangedEvent();
-        public static readonly RequestUpgradeOwnedSkillEvent RequestUpgradeOwnedSkill = new RequestUpgradeOwnedSkillEvent();
-        public static readonly PlayerSkillUpgradeResultEvent PlayerSkillUpgradeResult = new PlayerSkillUpgradeResultEvent();
+        public static readonly EquipSkillRequestEvent EquipSkillRequest = new EquipSkillRequestEvent();
+        public static readonly SwapSkillSlotsRequestEvent SwapSkillSlotsRequest = new SwapSkillSlotsRequestEvent();
+        public static readonly UnequipSkillRequestEvent UnequipSkillRequest = new UnequipSkillRequestEvent();
     }
+    
+    public class PlayerDataSetUpEvent : GameEvent
+    {
+        public PlayerData PlayerData;
+
+        public PlayerDataSetUpEvent Init(PlayerData playerData)
+        {
+            PlayerData = playerData;
+            return this;
+        }
+    }
+
 
     public class ActivePlayerEvent : GameEvent
     {
@@ -49,17 +59,6 @@ namespace Systems.GameEvents
         public LevelUpEvent Init(int newLevel)
         {
             NewLevel = newLevel;
-            return this;
-        }
-    }
-
-    public class PlayerDataSetUpCompleteEvent : GameEvent
-    {
-        public PlayerData PlayerData { get; private set; }
-
-        public PlayerDataSetUpCompleteEvent Init(PlayerData playerData)
-        {
-            PlayerData = playerData;
             return this;
         }
     }
@@ -120,6 +119,64 @@ namespace Systems.GameEvents
             Success = success;
             Message = message;
             return this;
+        }
+    }
+    
+    public class EquipSkillRequestEvent : GameEvent
+    {
+        public int TargetSlotIndex { get; private set; }
+        public PlayerSkillDataSo SkillData { get; private set; }
+        public bool Result { get; private set; }
+
+        public EquipSkillRequestEvent Init(int targetSlotIndex, PlayerSkillDataSo skillData)
+        {
+            TargetSlotIndex = targetSlotIndex;
+            SkillData = skillData;
+            Result = false;
+            return this;
+        }
+
+        public void SetResult(bool result)
+        {
+            Result = result;
+        }
+    }
+
+    public class SwapSkillSlotsRequestEvent : GameEvent
+    {
+        public int FromSlotIndex { get; private set; }
+        public int ToSlotIndex { get; private set; }
+        public bool Result { get; private set; }
+
+        public SwapSkillSlotsRequestEvent Init(int fromSlotIndex, int toSlotIndex)
+        {
+            FromSlotIndex = fromSlotIndex;
+            ToSlotIndex = toSlotIndex;
+            Result = false;
+            return this;
+        }
+
+        public void SetResult(bool result)
+        {
+            Result = result;
+        }
+    }
+
+    public class UnequipSkillRequestEvent : GameEvent
+    {
+        public int TargetSlotIndex { get; private set; }
+        public bool Result { get; private set; }
+
+        public UnequipSkillRequestEvent Init(int targetSlotIndex)
+        {
+            TargetSlotIndex = targetSlotIndex;
+            Result = false;
+            return this;
+        }
+
+        public void SetResult(bool result)
+        {
+            Result = result;
         }
     }
 }

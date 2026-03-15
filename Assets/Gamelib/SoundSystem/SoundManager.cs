@@ -44,7 +44,7 @@ namespace Gamelib.SoundSystem
                 _soundPlayerDict.Add(evt.ChannelNumber, player);
             }else if(evt.ChannelNumber <= 0 && evt.ClipData.loop)
             {
-                Debug.LogWarning($"Channel must be greater than 0, when the Sound data loop is enabled : {evt.ClipData.name}");   
+                Debug.LogWarning($"사운드 데이터 루프가 활성화된 경우 채널 값은 0보다 커야 합니다. : {evt.ClipData.name}");   
             }
         }
 

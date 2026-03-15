@@ -24,18 +24,18 @@ namespace UI.InventorySystem
         protected virtual void Awake()
         {
             if (PlayerChannel != null)
-                PlayerChannel.AddListener<PlayerDataSetUpCompleteEvent>(HandlePlayerDataSetUp);
+                PlayerChannel.AddListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
         }
 
         private void OnDestroy()
         {
             if (PlayerChannel != null)
-                PlayerChannel.RemoveListener<PlayerDataSetUpCompleteEvent>(HandlePlayerDataSetUp);
+                PlayerChannel.RemoveListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
 
             UnsubscribeInventory();
         }
 
-        private void HandlePlayerDataSetUp(PlayerDataSetUpCompleteEvent evt)
+        private void HandlePlayerDataSetUp(PlayerDataSetUpEvent evt)
         {
             if (evt == null || evt.PlayerData == null)
                 return;

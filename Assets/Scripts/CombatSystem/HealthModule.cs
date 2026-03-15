@@ -68,5 +68,10 @@ namespace CombatSystem
             SoundPlayManager.Instance.PlaySfx(SfxSounds.NORMAL_HIT, transform.position);
             CurrentHealth -= damage;
         }
+
+        public void ResetHealth()
+        {
+            CurrentHealth = MaxHealth;
+        }
     }
 }

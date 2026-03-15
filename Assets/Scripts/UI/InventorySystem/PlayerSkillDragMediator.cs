@@ -1,5 +1,6 @@
-using Agents.Players;
 using Agents.Players.Skills;
+using Gamelib.EventSystem;
+using Systems.GameEvents;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,9 +20,7 @@ namespace UI.InventorySystem
         [SerializeField] private RectTransform dragGhostRoot;
         [SerializeField] private Image dragGhostIcon;
         [SerializeField] private CanvasGroup dragGhostCanvasGroup;
-        [SerializeField] private Player player;
-
-        private IPlayerDashLoadoutModule _dashLoadoutModule;
+        [SerializeField] private EventChannelSO playerEventChannel;
 
         private bool _isDragging;
         private bool _dropHandled;
@@ -38,25 +37,16 @@ namespace UI.InventorySystem
             HideGhost();
         }
 
-        private void Start()
-        {
-            if (player == null)
-                player = FindAnyObjectByType<Player>();
-
-            if (player == null)
-            {
-                Debug.LogError($"{nameof(PlayerSkillDragMediator)} : Player reference is null.");
-                return;
-            }
-
-            _dashLoadoutModule = player.GetModule<IPlayerDashLoadoutModule>();
-            Debug.Assert(_dashLoadoutModule != null, $"{nameof(PlayerSkillDragMediator)} : DashLoadoutModule is null.");
-        }
-
         public bool BeginInventoryDrag(PlayerSkillDataSo skillData)
         {
             if (skillData == null)
                 return false;
+
+            if (playerEventChannel == null)
+            {
+                Debug.LogError($"{nameof(PlayerSkillDragMediator)} : PlayerEventChannel is null.");
+                return false;
+            }
 
             _isDragging = true;
             _dropHandled = false;
@@ -72,6 +62,12 @@ namespace UI.InventorySystem
         {
             if (skillData == null)
                 return false;
+
+            if (playerEventChannel == null)
+            {
+                Debug.LogError($"{nameof(PlayerSkillDragMediator)} : PlayerEventChannel is null.");
+                return false;
+            }
 
             _isDragging = true;
             _dropHandled = false;
@@ -104,7 +100,7 @@ namespace UI.InventorySystem
 
         public bool TryHandleDropOnLoadout(int targetSlotIndex)
         {
-            if (!_isDragging || _dashLoadoutModule == null)
+            if (!_isDragging || playerEventChannel == null)
                 return false;
 
             bool result = false;
@@ -112,19 +108,32 @@ namespace UI.InventorySystem
             switch (_sourceType)
             {
                 case PlayerSkillDragSourceType.Inventory:
-                    result = _dashLoadoutModule.EquipDashSkill(targetSlotIndex, _dragSkill);
+                {
+                    EquipSkillRequestEvent requestEvent =
+                        PlayerEvents.EquipSkillRequest.Init(targetSlotIndex, _dragSkill);
+
+                    playerEventChannel.RaiseEvent(requestEvent);
+                    result = requestEvent.Result;
                     break;
+                }
 
                 case PlayerSkillDragSourceType.Loadout:
+                {
                     if (_sourceLoadoutSlotIndex == targetSlotIndex)
                     {
                         result = true;
                     }
                     else
                     {
-                        result = _dashLoadoutModule.SwapDashSlots(_sourceLoadoutSlotIndex, targetSlotIndex);
+                        SwapSkillSlotsRequestEvent requestEvent =
+                            PlayerEvents.SwapSkillSlotsRequest.Init(_sourceLoadoutSlotIndex, targetSlotIndex);
+
+                        playerEventChannel.RaiseEvent(requestEvent);
+                        result = requestEvent.Result;
                     }
+
                     break;
+                }
             }
 
             if (result)
@@ -135,10 +144,13 @@ namespace UI.InventorySystem
 
         public void TryUnequipByClick(int slotIndex)
         {
-            if (_dashLoadoutModule == null)
+            if (playerEventChannel == null)
                 return;
 
-            _dashLoadoutModule.UnequipDashSkill(slotIndex);
+            UnequipSkillRequestEvent requestEvent =
+                PlayerEvents.UnequipSkillRequest.Init(slotIndex);
+
+            playerEventChannel.RaiseEvent(requestEvent);
         }
 
         public void EndDrag()
@@ -148,8 +160,13 @@ namespace UI.InventorySystem
 
             if (!_dropHandled && _sourceType == PlayerSkillDragSourceType.Loadout)
             {
-                if (_sourceLoadoutSlotIndex >= 0)
-                    _dashLoadoutModule?.UnequipDashSkill(_sourceLoadoutSlotIndex);
+                if (_sourceLoadoutSlotIndex >= 0 && playerEventChannel != null)
+                {
+                    UnequipSkillRequestEvent requestEvent =
+                        PlayerEvents.UnequipSkillRequest.Init(_sourceLoadoutSlotIndex);
+
+                    playerEventChannel.RaiseEvent(requestEvent);
+                }
             }
 
             ClearDragState();
