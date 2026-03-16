@@ -1,20 +1,27 @@
 using System;
+using System.Collections.Generic;
 using Agents.Players;
 using Agents.Players.Skills;
+using Alchemy.Inspector;
+using Alchemy.Serialization;
 using Gamelib.EventSystem;
 using Systems.GameEvents;
 using UnityEngine;
 
 namespace UI.InventorySystem
 {
-    public class PlayerSkillInventoryTestController : MonoBehaviour, IHandlePlayerDataSetUp
+    [AlchemySerialize]
+    public partial class PlayerSkillInventoryTestController : MonoBehaviour, IHandlePlayerDataSetUp
     {
         [SerializeField] private EventChannelSO playerEventChannel;
         [SerializeField] private PlayerSkillDataSo testSkillA;
         [SerializeField] private PlayerSkillDataSo testSkillB;
         [SerializeField] private int shardAmount = 1;
         [SerializeField] private int testGold = 999;
-
+        
+        [AlchemySerializeField, NonSerialized]
+        public HashSet<GameObject> hashset = new();
+        
         private Player _player;
         private IPlayerSkillInventoryModule _inventoryModule;
         private PlayerData _playerData;
@@ -40,13 +47,13 @@ namespace UI.InventorySystem
             Debug.Assert(_inventoryModule != null, "[PlayerSkillInventoryTestController] : 플레이어 스킬 인벤토리 모듈이 없습니다.");
         }
 
-        [ContextMenu("Acquire Skill A")]
+        [Button]
         public void AcquireSkillA()
         {
             _inventoryModule?.TryAcquireSkill(testSkillA);
         }
 
-        [ContextMenu("Acquire Skill B")]
+        [Button]
         public void AcquireSkillB()
         {
             _inventoryModule?.TryAcquireSkill(testSkillB);

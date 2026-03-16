@@ -74,54 +74,6 @@ namespace Systems.GameEvents
         }
     }
 
-    public class RequestPlayerSkillUpgradeInfoEvent : GameEvent
-    {
-        public PlayerSkill SkillId { get; private set; }
-
-        public RequestPlayerSkillUpgradeInfoEvent Init(PlayerSkill skillId)
-        {
-            SkillId = skillId;
-            return this;
-        }
-    }
-
-    public class PlayerSkillUpgradeInfoChangedEvent : GameEvent
-    {
-        public PlayerSkillUpgradeSnapshot Snapshot { get; private set; }
-
-        public PlayerSkillUpgradeInfoChangedEvent Init(PlayerSkillUpgradeSnapshot snapshot)
-        {
-            Snapshot = snapshot;
-            return this;
-        }
-    }
-
-    public class RequestUpgradeOwnedSkillEvent : GameEvent
-    {
-        public PlayerSkill SkillId { get; private set; }
-
-        public RequestUpgradeOwnedSkillEvent Init(PlayerSkill skillId)
-        {
-            SkillId = skillId;
-            return this;
-        }
-    }
-
-    public class PlayerSkillUpgradeResultEvent : GameEvent
-    {
-        public PlayerSkill SkillId { get; private set; }
-        public bool Success { get; private set; }
-        public string Message { get; private set; }
-
-        public PlayerSkillUpgradeResultEvent Init(PlayerSkill skillId, bool success, string message)
-        {
-            SkillId = skillId;
-            Success = success;
-            Message = message;
-            return this;
-        }
-    }
-    
     public class EquipSkillRequestEvent : GameEvent
     {
         public int TargetSlotIndex { get; private set; }
