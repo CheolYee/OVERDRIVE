@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Agents.Players;
 using Agents.Players.Skills;
 using Alchemy.Inspector;
@@ -18,9 +16,6 @@ namespace UI.InventorySystem
         [SerializeField] private PlayerSkillDataSo testSkillB;
         [SerializeField] private int shardAmount = 1;
         [SerializeField] private int testGold = 999;
-        
-        [AlchemySerializeField, NonSerialized]
-        public HashSet<GameObject> hashset = new();
         
         private Player _player;
         private IPlayerSkillInventoryModule _inventoryModule;

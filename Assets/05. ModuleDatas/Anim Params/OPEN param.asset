@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59168d3fb6bb404bbace89860f08b769, type: 3}
-  m_Name: Level Up UI Data
+  m_Script: {fileID: 11500000, guid: 806ed508855749cea51a4194c0f3c39e, type: 3}
+  m_Name: OPEN param
   m_EditorClassIdentifier: 
-  <AssetIndex>k__BackingField: 1
-  uiName: Level Up
-  hashValue: -1874613474
-  displayName: "\uC2A4\uD0AC \uAC15\uD654"
-  hierarchyName: Level Up
+  <ParamName>k__BackingField: OPEN
+  <ParamHash>k__BackingField: -1830457840

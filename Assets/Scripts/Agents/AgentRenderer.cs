@@ -37,7 +37,7 @@ namespace Agents
                 Flip();
         }
 
-        private void Flip()
+        public void Flip()
         {
             FacingDirection *= -1;
             float targetYRotation = FacingDirection > 0 ? 0 : 180f;

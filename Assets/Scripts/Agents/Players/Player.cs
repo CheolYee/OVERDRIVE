@@ -44,7 +44,7 @@ namespace Agents.Players
             base.AfterInitComponents();
             PlayerInput.OnJumpKeyPressed += HandleJumpKeyPressed;
             PlayerInput.OnAttackKeyPressed += HandleAttackKeyPressed;
-            _currentJumpCount = JumpCount; //요건 나중에 삭제한다.
+            _currentJumpCount = JumpCount;
             
             PlayerEventChannel.AddListener<ActivePlayerEvent>(HandleActivePlayerEvent);
         }

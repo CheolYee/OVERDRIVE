@@ -9,5 +9,6 @@
         void SetInt(AnimParamSO param, int value);
         void SetTrigger(AnimParamSO param);
         void FlipController(float xMoveDirection);
+        void Flip();
     }
 }

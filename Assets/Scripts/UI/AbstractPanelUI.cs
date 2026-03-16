@@ -1,4 +1,5 @@
 using System;
+using Alchemy.Inspector;
 using DG.Tweening;
 using Systems.Database;
 using UnityEngine;
@@ -43,10 +44,10 @@ namespace UI
             }
         }
         
-        [ContextMenu("OpenPanel")]
+        [Button]
         private void OpenPanelTest() => Open(false);
         
-        [ContextMenu("Close Panel")]
+        [Button]
         private void ClosePanelTest() => Close(false);
     }
 }
