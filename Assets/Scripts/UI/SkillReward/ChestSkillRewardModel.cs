@@ -33,10 +33,13 @@ namespace UI.SkillReward
 
         private void HandleOpenChestSkillRewardEvent(OpenChestSkillRewardEvent obj)
         {
+            if (HasPendingRequest)
+                return;
+
             HasPendingRequest = true;
             LastChestInstanceId = obj.ChestInstanceId;
             LastChestWorldPosition = obj.ChestWorldPosition;
-            
+
             OnPendingRequestReceived?.Invoke();
         }
         

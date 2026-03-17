@@ -16,5 +16,7 @@ namespace Agents.Players.Skills
         public PlayerStateEnum nextState;
         public SkillKey defaultKey;
         public GameObject prefab;
+        
+        [TextArea] public string description;
     }
 }

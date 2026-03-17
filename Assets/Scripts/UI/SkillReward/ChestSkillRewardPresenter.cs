@@ -1,5 +1,3 @@
-using Gamelib.EventSystem;
-using Systems.GameEvents;
 using UnityEngine;
 
 namespace UI.SkillReward
@@ -7,16 +5,16 @@ namespace UI.SkillReward
     public class ChestSkillRewardPresenter : MonoBehaviour
     {
         [SerializeField] private ChestSkillRewardModel model;
-        [SerializeField] private ChestSkillRewardPanelView view;
-        [SerializeField] private EventChannelSO systemChannel;
+        [SerializeField] private ChestSkillRewardPopupView view;
+        [SerializeField] private RewardCanvasUI rewardCanvasUI;
 
         private void Awake()
         {
             Debug.Assert(model != null, "[ChestSkillRewardPresenter] : model is null.");
             Debug.Assert(view != null, "[ChestSkillRewardPresenter] : view is null.");
-            Debug.Assert(systemChannel != null, "[ChestSkillRewardPresenter] : systemChannel is null.");
+            Debug.Assert(rewardCanvasUI != null, "[ChestSkillRewardPresenter] : rewardCanvasUI is null.");
         }
-        
+
         private void OnEnable()
         {
             model.OnPendingRequestReceived += HandlePendingRequestReceived;
@@ -34,8 +32,10 @@ namespace UI.SkillReward
 
             view.BindDebug(model.LastChestInstanceId, model.LastChestWorldPosition);
 
-            systemChannel.RaiseEvent(
-                SystemEvents.OpenMenu.Init(view.UIData.hashValue));
+            rewardCanvasUI.OpenOverlay(() =>
+            {
+                view.PlayOpenSequence();
+            });
 
             model.ClearPendingRequest();
         }
