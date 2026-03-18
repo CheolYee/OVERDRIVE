@@ -1,4 +1,4 @@
-﻿﻿using Agents.FSM;
+﻿using Agents.FSM;
 using CombatSystem;
 using Gamelib.SoundSystem;
 using Systems.AnimationSystems;
@@ -27,16 +27,32 @@ namespace Agents.Players.Skills
         public override void InitializeSkill(ISkillModule skillModule)
         {
             base.InitializeSkill(skillModule);
+            CacheComponents(skillModule);
+        }
+
+        public override void InitializeSkill(ISkillModule skillModule, PlayerSkillDataSo runtimeSkillData)
+        {
+            base.InitializeSkill(skillModule, runtimeSkillData);
+            CacheComponents(skillModule);
+        }
+
+        private void CacheComponents(ISkillModule skillModule)
+        {
             _trigger = skillModule.Owner.GetModule<IAnimatorTrigger>();
             _renderer = skillModule.Owner.GetModule<IRenderer>();
             _mover = skillModule.Owner.GetModule<IMover>();
+
             Debug.Assert(_trigger != null, $"{gameObject.name} is not attached to trigger");
             Debug.Assert(_renderer != null, $"{gameObject.name} is not attached to renderer");
             Debug.Assert(_mover != null, $"{gameObject.name} is not attached to mover");
 
             _damageCaster = GetComponentInChildren<AbstractDamageCaster>();
             Debug.Assert(_damageCaster != null, $"{gameObject.name} is not attached to damage caster");
-            _damageCaster.InitCaster(_player);
+
+            if (_damageCaster != null)
+            {
+                _damageCaster.InitCaster(_player);
+            }
         }
 
         public override bool CanUseSkill(GameObject target = null)
@@ -47,55 +63,85 @@ namespace Agents.Players.Skills
         public override void UseSkill(GameObject target = null)
         {
             base.UseSkill(target);
-            if (comboCounter > 2 || Time.time >= _lastUseTime + comboWindow)
+
+            if (_mover == null || _renderer == null || _trigger == null || _damageCaster == null)
             {
-                comboCounter = 0; //콤보가 2를 넘어섰거나 마지막으로 공격한 시간으로부터 콤보 윈도우 시간만큼 지나갔다면
+                Debug.LogError($"{nameof(SwordComboSkill)} 초기화가 완료되지 않았습니다.");
+                StopSkill();
+                return;
             }
 
-            //무브먼트 적용 부분
+            if (comboCounter > 2 || Time.time >= _lastUseTime + comboWindow)
+            {
+                comboCounter = 0;
+            }
+
             _mover.CanManualMovement = false;
+
             Vector2 movement = comboCounter < comboMovements.Length ? comboMovements[comboCounter] : Vector2.zero;
             _mover.StopImmediately(true, false);
             movement.x *= _renderer.FacingDirection;
             _mover.AddForceToAgent(movement);
 
-            //캐스터 위치 조절 부분
             Vector2 offset = comboCounter < casterOffsets.Length ? casterOffsets[comboCounter] : Vector2.zero;
-            _damageCaster.transform.localPosition = offset; //로컬포지션
+            _damageCaster.transform.localPosition = offset;
             
             Vector2 sizeOffset = comboCounter < casterSizes.Length ? casterSizes[comboCounter] : Vector2.zero;
-            _damageCaster.SetBoxSize(sizeOffset); //캐스터 사이즈 조절
+            _damageCaster.SetBoxSize(sizeOffset);
             
-            _renderer.SetFloat(attackIndexParam, comboCounter); //인덱스 지정
+            _renderer.SetFloat(attackIndexParam, comboCounter);
 
+            _trigger.OnAttackTrigger -= HandleAttackTrigger;
+            _trigger.OnAnimationEnd -= AnimationEndTrigger;
             _trigger.OnAttackTrigger += HandleAttackTrigger;
             _trigger.OnAnimationEnd += AnimationEndTrigger;
         }
 
         private void HandleAttackTrigger()
         {
-            SoundPlayManager.Instance.PlaySfx(comboSfx[comboCounter], transform.position);
+            if (_damageCaster == null || _mover == null)
+                return;
+
+            if (comboCounter < comboSfx.Length)
+            {
+                SoundPlayManager.Instance.PlaySfx(comboSfx[comboCounter], transform.position);
+            }
+
             float damage = _skillModule.GetBaseDamage(SkillData);
-            Vector2 knockBackPower = comboCounter < overrideKnockbackForce.Length ? overrideKnockbackForce[comboCounter] : Vector2.zero;
+            Vector2 knockBackPower = comboCounter < overrideKnockbackForce.Length
+                ? overrideKnockbackForce[comboCounter]
+                : Vector2.zero;
             
-            bool isSuccess = _damageCaster.CastDamage(damage, knockBackPower); //타이밍에 맞게 나가야하는데 아직 그거 안맞췄어.
+            bool isSuccess = _damageCaster.CastDamage(damage, knockBackPower);
             if (isSuccess)
             {
                 _mover.StopImmediately(true, false);
             }
         }
 
-        private void AnimationEndTrigger() => ClearSkillParams();
+        private void AnimationEndTrigger()
+        {
+            ClearSkillParams();
+        }
 
         protected override void ClearSkillParams()
         {
             base.ClearSkillParams();
-            _trigger.OnAnimationEnd -= AnimationEndTrigger;
-            _trigger.OnAttackTrigger -= HandleAttackTrigger;
+
+            if (_trigger != null)
+            {
+                _trigger.OnAnimationEnd -= AnimationEndTrigger;
+                _trigger.OnAttackTrigger -= HandleAttackTrigger;
+            }
+
             ++comboCounter;
             _lastUseTime = Time.time;
             _skillModule.InvokeAttackEnd();
-            _mover.CanManualMovement = true;
+
+            if (_mover != null)
+            {
+                _mover.CanManualMovement = true;
+            }
         }
     }
 }

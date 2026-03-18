@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Agents.FSM;
 using Agents.Players.Skills;
-using Agents.Players.States;
 using Agents.StatSystem;
 using CombatSystem;
 using Modules;
@@ -152,14 +151,16 @@ namespace Agents.Players
                 return;
             }
 
-            skill.InitializeSkill(this);
-            skill.BindingKey = bindKey;
+            skill.InitializeSkill(this, skillData);
+
+            SkillKey resolvedBindKey = bindKey != SkillKey.NONE ? bindKey : skillData.defaultKey;
+            skill.BindingKey = resolvedBindKey;
 
             _skillDict.Add(skillData.AssetIndex, skill);
 
-            if (ShouldStoreKeyBinding(bindKey) && !_keyBindDict.TryAdd(bindKey, skill))
+            if (ShouldStoreKeyBinding(resolvedBindKey))
             {
-                Debug.LogWarning($"{nameof(PlayerSkillModule)} : 이미 다른 스킬이 {bindKey} 에 바인딩되어 있습니다.");
+                _keyBindDict[resolvedBindKey] = skill;
             }
         }
 
@@ -210,7 +211,66 @@ namespace Agents.Players
                 return false;
             }
 
+            if (TryGetRegisteredSkill(skillData.skillId, out _, out _))
+            {
+                Debug.LogWarning($"{nameof(PlayerSkillModule)} : 이미 같은 skillId 스킬이 등록되어 있습니다. skillId = {skillData.skillId}");
+                return false;
+            }
+
             return true;
+        }
+
+        private bool TryGetRegisteredSkill(PlayerSkill skillId, out int registeredAssetIndex, out AbstractPlayerSkill registeredSkill)
+        {
+            registeredAssetIndex = -1;
+            registeredSkill = null;
+
+            foreach (KeyValuePair<int, AbstractPlayerSkill> pair in _skillDict)
+            {
+                AbstractPlayerSkill skill = pair.Value;
+                if (skill == null || skill.PlayerSkillData == null)
+                    continue;
+
+                if (skill.PlayerSkillData.skillId != skillId)
+                    continue;
+
+                registeredAssetIndex = pair.Key;
+                registeredSkill = skill;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void ApplyRegisteredSkillData(
+            int registeredAssetIndex,
+            AbstractPlayerSkill registeredSkill,
+            PlayerSkillDataSo newSkillData,
+            SkillKey bindKey)
+        {
+            if (registeredSkill == null || newSkillData == null)
+                return;
+
+            SkillKey previousBindKey = registeredSkill.BindingKey;
+
+            if (ShouldStoreKeyBinding(previousBindKey) && previousBindKey != bindKey)
+            {
+                _keyBindDict.Remove(previousBindKey);
+            }
+
+            if (registeredAssetIndex != newSkillData.AssetIndex)
+            {
+                _skillDict.Remove(registeredAssetIndex);
+                _skillDict[newSkillData.AssetIndex] = registeredSkill;
+            }
+
+            registeredSkill.RefreshRuntimeSkillData(newSkillData);
+            registeredSkill.BindingKey = bindKey;
+
+            if (ShouldStoreKeyBinding(bindKey))
+            {
+                _keyBindDict[bindKey] = registeredSkill;
+            }
         }
 
         private void HandleDashKeyPress(bool isPressed)
@@ -397,6 +457,16 @@ namespace Agents.Players
             if (_skillDict.ContainsKey(skillData.AssetIndex))
                 return true;
 
+            if (TryGetRegisteredSkill(skillData.skillId, out int registeredAssetIndex, out AbstractPlayerSkill registeredSkill))
+            {
+                SkillKey resolvedBindKey = bindKey != SkillKey.NONE ? bindKey : registeredSkill.BindingKey;
+                if (resolvedBindKey == SkillKey.NONE)
+                    resolvedBindKey = skillData.defaultKey;
+
+                ApplyRegisteredSkillData(registeredAssetIndex, registeredSkill, skillData, resolvedBindKey);
+                return true;
+            }
+
             AddSkill(skillData, bindKey);
             return _skillDict.ContainsKey(skillData.AssetIndex);
         }
@@ -406,17 +476,19 @@ namespace Agents.Players
             if (newSkillData == null)
                 return false;
 
-            SkillKey bindKey = newSkillData.defaultKey;
-
-            if (oldSkillData != null && _skillDict.TryGetValue(oldSkillData.AssetIndex, out AbstractPlayerSkill oldSkill))
+            if (TryGetRegisteredSkill(newSkillData.skillId, out int registeredAssetIndex, out AbstractPlayerSkill registeredSkill))
             {
-                bindKey = oldSkill.BindingKey;
-                RemoveSkill(oldSkillData);
+                SkillKey bindKey = registeredSkill.BindingKey != SkillKey.NONE
+                    ? registeredSkill.BindingKey
+                    : newSkillData.defaultKey;
+
+                ApplyRegisteredSkillData(registeredAssetIndex, registeredSkill, newSkillData, bindKey);
+                return true;
             }
 
-            return EnsureSkillRegistered(newSkillData, bindKey);
+            return EnsureSkillRegistered(newSkillData, newSkillData.defaultKey);
         }
-        
+
         public bool TryUseRegisteredSkill(PlayerSkillDataSo skillData, bool shouldMarkDashSequence = false)
         {
             return TryStartSkillByData(skillData, shouldMarkDashSequence);

@@ -58,6 +58,7 @@ namespace Agents.Players
         public void MarkDashSkillStarted()
         {
             _isCurrentSkillStartedByDash = true;
+            NotifyDashPreviewChanged();
         }
 
         public void ClearDashSkillStarted()
@@ -69,7 +70,7 @@ namespace Agents.Players
         {
             return _isCurrentSkillStartedByDash;
         }
-        
+
         public bool ReplaceEquippedSkill(PlayerSkill skillId, PlayerSkillDataSo newSkillData)
         {
             if (newSkillData == null)
@@ -103,12 +104,7 @@ namespace Agents.Players
             return true;
         }
 
-        #region 조회
-
-        public int GetDashSlotCount()
-        {
-            return dashSlots?.Length ?? 0;
-        }
+        public int GetDashSlotCount() => dashSlots?.Length ?? 0;
 
         public int GetUnlockedDashSlotCount()
         {
@@ -130,10 +126,6 @@ namespace Agents.Players
 
             return dashSlots[slotIndex].equippedSkill;
         }
-
-        #endregion
-
-        #region 조작
 
         public bool UnlockDashSlot(int slotIndex)
         {
@@ -173,10 +165,7 @@ namespace Agents.Players
 
         public bool EquipDashSkill(int slotIndex, PlayerSkillDataSo skillData)
         {
-            if (!CanModifyDashSlot(slotIndex))
-                return false;
-
-            if (skillData == null)
+            if (!CanModifyDashSlot(slotIndex) || skillData == null)
                 return false;
 
             DashSkillSlot slot = dashSlots[slotIndex];
@@ -223,10 +212,6 @@ namespace Agents.Players
             return true;
         }
 
-        #endregion
-
-        #region 헬퍼들
-
         private bool IsValidDashSlotIndex(int slotIndex)
         {
             return dashSlots != null && slotIndex >= 0 && slotIndex < dashSlots.Length;
@@ -253,10 +238,7 @@ namespace Agents.Players
             foundIndex = -1;
             skillData = null;
 
-            if (dashSlots == null || dashSlots.Length == 0)
-                return false;
-
-            if (skipCount < 0)
+            if (dashSlots == null || dashSlots.Length == 0 || skipCount < 0)
                 return false;
 
             int slotCount = dashSlots.Length;
@@ -268,10 +250,7 @@ namespace Agents.Players
                 int currentIndex = (startIndex + i) % slotCount;
                 DashSkillSlot slot = dashSlots[currentIndex];
 
-                if (!slot.isUnlocked)
-                    continue;
-
-                if (slot.equippedSkill == null)
+                if (!slot.isUnlocked || slot.equippedSkill == null)
                     continue;
 
                 if (foundOrder == skipCount)
@@ -287,16 +266,7 @@ namespace Agents.Players
             return false;
         }
 
-        private void NotifyDashLoadoutChanged()
-        {
-            OnDashLoadoutChanged?.Invoke();
-        }
-
-        private void NotifyDashPreviewChanged()
-        {
-            OnDashPreviewChanged?.Invoke();
-        }
-
-        #endregion
+        private void NotifyDashLoadoutChanged() => OnDashLoadoutChanged?.Invoke();
+        private void NotifyDashPreviewChanged() => OnDashPreviewChanged?.Invoke();
     }
 }

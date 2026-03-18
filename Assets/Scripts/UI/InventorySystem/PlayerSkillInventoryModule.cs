@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Agents.Players.Skills;
 using Modules;
 using Systems.CoreSystem;
@@ -188,6 +187,28 @@ namespace UI.InventorySystem
             return true;
         }
 
+        public bool TryUpgradeSkill(PlayerSkillDataSo nextSkillData, out PlayerSkillDataSo previousSkillData)
+        {
+            previousSkillData = null;
+
+            if (nextSkillData == null)
+                return false;
+
+            if (!TryGetSkill(nextSkillData.skillId, out previousSkillData))
+                return false;
+
+            if (previousSkillData == null)
+                return false;
+
+            if (previousSkillData.AssetIndex == nextSkillData.AssetIndex)
+                return false;
+
+            if (nextSkillData.level <= previousSkillData.level)
+                return false;
+
+            return TrySetCurrentSkill(nextSkillData);
+        }
+
         private void ClearRuntimeState()
         {
             _entries.Clear();
@@ -269,7 +290,7 @@ namespace UI.InventorySystem
         {
             OnInventoryChanged?.Invoke();
         }
-        
+
         public IReadOnlyCollection<PlayerSkillDataSo> GetAllKnownSkillData()
         {
             return _skillDataByAssetIndex.Values;

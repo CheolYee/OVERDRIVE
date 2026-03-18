@@ -25,6 +25,8 @@ namespace UI.InventorySystem
         bool TryAcquireSkill(PlayerSkillDataSo skillData, int duplicateShardAmount = 1);
         bool TryAddShards(PlayerSkill skillId, int amount);
         bool TryConsumeShards(PlayerSkill skillId, int amount);
+
         bool TrySetCurrentSkill(PlayerSkillDataSo skillData);
+        bool TryUpgradeSkill(PlayerSkillDataSo nextSkillData, out PlayerSkillDataSo previousSkillData);
     }
 }

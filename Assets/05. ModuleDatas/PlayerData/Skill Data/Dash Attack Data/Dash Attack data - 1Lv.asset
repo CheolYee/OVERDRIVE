@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <AssetIndex>k__BackingField: 2
   minRange: 0
-  maxRange: 0
+  maxRange: 1
   attackName: "\uB300\uC26C \uACF5\uACA9 - 1Lv"
   idName: Dash Attack
   damageMultiplier: 1
