@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using Alchemy.Inspector;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
 
 namespace UI.SkillReward
@@ -15,36 +16,46 @@ namespace UI.SkillReward
         [Header("Sequence")]
         [SerializeField] private float cardInterval = 0.05f;
 
-        [Header("Debug")]
-        [SerializeField] private Agents.Players.Skills.PlayerSkillDataSo debugSkillData;
-
         private Sequence _openSequence;
+        private ChestSkillRewardCardView _selectedCard;
+
+        public event Action<RewardCardViewData> OnCardAcquireRequested;
 
         private void Awake()
         {
+            Canvas.ForceUpdateCanvases();
+
+            leftCard?.CaptureOrigin();
+            centerCard?.CaptureOrigin();
+            rightCard?.CaptureOrigin();
+
+            SubscribeCardEvents();
             PrepareClosedState();
         }
 
-        [Button]
-        public void BindDebug(int chestInstanceId, Vector3 chestWorldPosition)
+        private void OnDestroy()
         {
-            RewardCardViewData debugData = RewardCardViewData.CreateSkill(debugSkillData);
-
-            leftCard?.Bind(debugData);
-            centerCard?.Bind(debugData);
-            rightCard?.Bind(debugData);
+            UnsubscribeCardEvents();
         }
 
+        public void BindCards(IReadOnlyList<RewardCardViewData> cards)
+        {
+            leftCard?.Bind(GetCardOrNull(cards, 0));
+            centerCard?.Bind(GetCardOrNull(cards, 1));
+            rightCard?.Bind(GetCardOrNull(cards, 2));
+        }
+
+        [Button]
         public void PrepareClosedState()
         {
             _openSequence?.Kill();
+            _selectedCard = null;
 
             leftCard?.SetHiddenImmediate();
             centerCard?.SetHiddenImmediate();
             rightCard?.SetHiddenImmediate();
         }
 
-        [Button]
         public void PlayOpenSequence()
         {
             _openSequence?.Kill();
@@ -54,18 +65,29 @@ namespace UI.SkillReward
             _openSequence.SetUpdate(true);
 
             if (leftCard != null)
-                _openSequence.Append(leftCard.PlayShow());
+            {
+                _openSequence.AppendCallback(() => leftCard.PlayShow());
+                _openSequence.AppendInterval(cardInterval);
+            }
 
             if (centerCard != null)
-                _openSequence.AppendInterval(cardInterval)
-                    .Append(centerCard.PlayShow());
+            {
+                _openSequence.AppendCallback(() => centerCard.PlayShow());
+                _openSequence.AppendInterval(cardInterval);
+            }
 
             if (rightCard != null)
-                _openSequence.AppendInterval(cardInterval)
-                    .Append(rightCard.PlayShow());
+            {
+                _openSequence.AppendCallback(() => rightCard.PlayShow());
+            }
+
+            _openSequence.OnComplete(() =>
+            {
+                if (leftCard != null && leftCard.CurrentData != null)
+                    SelectCard(leftCard);
+            });
         }
 
-        [Button]
         public void PlayCloseSequence()
         {
             _openSequence?.Kill();
@@ -73,6 +95,89 @@ namespace UI.SkillReward
             leftCard?.PlayHide();
             centerCard?.PlayHide();
             rightCard?.PlayHide();
+
+            _selectedCard = null;
+        }
+
+        private void SubscribeCardEvents()
+        {
+            if (leftCard != null)
+            {
+                leftCard.OnCardClicked += HandleCardClicked;
+                leftCard.OnAcquireRequested += HandleAcquireRequested;
+            }
+
+            if (centerCard != null)
+            {
+                centerCard.OnCardClicked += HandleCardClicked;
+                centerCard.OnAcquireRequested += HandleAcquireRequested;
+            }
+
+            if (rightCard != null)
+            {
+                rightCard.OnCardClicked += HandleCardClicked;
+                rightCard.OnAcquireRequested += HandleAcquireRequested;
+            }
+        }
+
+        private void UnsubscribeCardEvents()
+        {
+            if (leftCard != null)
+            {
+                leftCard.OnCardClicked -= HandleCardClicked;
+                leftCard.OnAcquireRequested -= HandleAcquireRequested;
+            }
+
+            if (centerCard != null)
+            {
+                centerCard.OnCardClicked -= HandleCardClicked;
+                centerCard.OnAcquireRequested -= HandleAcquireRequested;
+            }
+
+            if (rightCard != null)
+            {
+                rightCard.OnCardClicked -= HandleCardClicked;
+                rightCard.OnAcquireRequested -= HandleAcquireRequested;
+            }
+        }
+
+        private void HandleCardClicked(ChestSkillRewardCardView clickedCard)
+        {
+            if (clickedCard == null || clickedCard.CurrentData == null)
+                return;
+
+            SelectCard(clickedCard);
+        }
+
+        private void SelectCard(ChestSkillRewardCardView targetCard)
+        {
+            if (targetCard == null)
+                return;
+
+            if (_selectedCard == targetCard)
+                return;
+
+            if (_selectedCard != null)
+                _selectedCard.SetSelected(false);
+
+            _selectedCard = targetCard;
+            _selectedCard.SetSelected(true);
+        }
+
+        private void HandleAcquireRequested(RewardCardViewData data)
+        {
+            if (data == null)
+                return;
+
+            OnCardAcquireRequested?.Invoke(data);
+        }
+
+        private RewardCardViewData GetCardOrNull(IReadOnlyList<RewardCardViewData> cards, int index)
+        {
+            if (cards == null || index < 0 || index >= cards.Count)
+                return null;
+
+            return cards[index];
         }
     }
 }

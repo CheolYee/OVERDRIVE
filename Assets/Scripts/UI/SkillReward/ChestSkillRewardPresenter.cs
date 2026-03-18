@@ -10,9 +10,9 @@ namespace UI.SkillReward
 
         private void Awake()
         {
-            Debug.Assert(model != null, "[ChestSkillRewardPresenter] : model is null.");
-            Debug.Assert(view != null, "[ChestSkillRewardPresenter] : view is null.");
-            Debug.Assert(rewardCanvasUI != null, "[ChestSkillRewardPresenter] : rewardCanvasUI is null.");
+            Debug.Assert(model != null, $"[{nameof(ChestSkillRewardPresenter)}] : model is null.");
+            Debug.Assert(view != null, $"[{nameof(ChestSkillRewardPresenter)}] : view is null.");
+            Debug.Assert(rewardCanvasUI != null, $"[{nameof(ChestSkillRewardPresenter)}] : rewardCanvasUI is null.");
         }
 
         private void OnEnable()
@@ -30,7 +30,7 @@ namespace UI.SkillReward
             if (!model.HasPendingRequest)
                 return;
 
-            view.BindDebug(model.LastChestInstanceId, model.LastChestWorldPosition);
+            view.BindCards(model.PendingCards);
 
             rewardCanvasUI.OpenOverlay(() =>
             {

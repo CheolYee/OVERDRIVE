@@ -269,5 +269,10 @@ namespace UI.InventorySystem
         {
             OnInventoryChanged?.Invoke();
         }
+        
+        public IReadOnlyCollection<PlayerSkillDataSo> GetAllKnownSkillData()
+        {
+            return _skillDataByAssetIndex.Values;
+        }
     }
 }

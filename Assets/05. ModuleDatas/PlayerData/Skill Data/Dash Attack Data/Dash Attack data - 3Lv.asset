@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 225100e51cea4d1ca362305874ce8b1d, type: 3}
   m_Name: Dash Attack data - 3Lv
   m_EditorClassIdentifier: 
-  <AssetIndex>k__BackingField: 2
+  <AssetIndex>k__BackingField: 4
   minRange: 0
   maxRange: 0
   attackName: "\uB300\uC26C \uACF5\uACA9 - 3Lv"
