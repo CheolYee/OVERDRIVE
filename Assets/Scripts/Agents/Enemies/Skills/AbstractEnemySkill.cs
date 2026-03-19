@@ -12,13 +12,16 @@ namespace Agents.Enemies.Skills
         protected AbstractEnemy Enemy;
 
         public float NormalizedCooldown => Mathf.Clamp01((Time.time - LastUseTime) / SkillData.cooldown);
-        
-        public virtual void InitializeSkill(ISkillModule skillModule)
+
+        public void InitializeSkill(ISkillModule skillModule)
         {
             SkillModule = skillModule;
             Enemy = SkillModule.Owner as AbstractEnemy;
             Debug.Assert(Enemy != null, $"{gameObject.name} 은 에너미가 아닙니다.");
+            OnInitialized();
         }
+
+        protected virtual void OnInitialized() { }
 
         public abstract bool CanUseSkill(GameObject target = null);
         public abstract void UseSkill(GameObject target = null);

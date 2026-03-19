@@ -10,9 +10,9 @@ namespace Agents.Enemies.Skills
         
         private AbstractDamageCaster _damageCaster;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
+            base.OnInitialized();
             Trigger = Enemy.GetModule<IAnimatorTrigger>();
             Debug.Assert(Trigger != null, $"{gameObject.name} 소유자가 애니메이션 트리거를 가지고 있지 않습니다.");
 

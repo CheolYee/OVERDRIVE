@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Agents.Players.Skills;
 using Modules;
-using Systems.CoreSystem;
 using Systems.Database;
 using UnityEngine;
 
@@ -11,9 +10,7 @@ namespace UI.InventorySystem
     public class PlayerSkillInventoryModule : MonoBehaviour, IModule, IPlayerSkillInventoryModule
     {
         [SerializeField] private PlayerSkillDataTableSo playerSkillTable;
-
         public event Action OnInventoryChanged;
-
         public IReadOnlyList<PlayerSkillInventoryEntry> Entries => _entries;
 
         private readonly List<PlayerSkillInventoryEntry> _entries = new();
@@ -247,7 +244,10 @@ namespace UI.InventorySystem
                         $"{nameof(PlayerSkillInventoryModule)} : 중복 AssetIndex({skillData.AssetIndex}) 가 테이블에 있습니다.");
                     continue;
                 }
-
+                
+                if (skillData.isBasicAttack)
+                    continue;
+                
                 _skillDataByAssetIndex.Add(skillData.AssetIndex, skillData);
             }
         }
@@ -257,23 +257,11 @@ namespace UI.InventorySystem
             if (skillData == null)
                 return;
 
-            if (_skillDataByAssetIndex.ContainsKey(skillData.AssetIndex))
+            if (!_skillDataByAssetIndex.TryAdd(skillData.AssetIndex, skillData))
                 return;
-
-            _skillDataByAssetIndex.Add(skillData.AssetIndex, skillData);
 
             Debug.LogWarning(
                 $"{nameof(PlayerSkillInventoryModule)} : {skillData.name} 이(가) PlayerSkillTable 에 등록되지 않았습니다. 런타임에서만 임시 등록됩니다.");
-        }
-
-        private void RebuildEntryIndexLookup()
-        {
-            _entryIndexBySkillId.Clear();
-
-            for (int i = 0; i < _entries.Count; i++)
-            {
-                _entryIndexBySkillId[_entries[i].skillId] = i;
-            }
         }
 
         private bool TryResolveSkillData(int assetIndex, out PlayerSkillDataSo skillData)

@@ -16,16 +16,15 @@ namespace Agents.Players
     public class PlayerSkillModule : MonoBehaviour, IModule, IPlayerSkillModule, IAfterInitModule
     {
         public ModuleOwner Owner { get; private set; }
-        public Player Player { get; private set; }
         public AbstractPlayerSkill CurrentUsingSkill { get; private set; }
+        
+        private Player _player;
 
         public event Action OnAttackEnd;
 
         [field: SerializeField] public StatSO AttackSpeedStat { get; private set; }
         [field: SerializeField] public StatSO DamageStat { get; private set; }
         [field: SerializeField] public AnimParamSO AttackSpeedParam { get; private set; }
-
-        [field: SerializeField] public PlayerSkillDataSo[] InitSkills { get; private set; }
 
         private readonly Dictionary<int, AbstractPlayerSkill> _skillDict = new();
         private readonly Dictionary<SkillKey, AbstractPlayerSkill> _keyBindDict = new();
@@ -42,9 +41,9 @@ namespace Agents.Players
         public void Initialize(ModuleOwner owner)
         {
             Owner = owner;
-            Player = owner as Player;
+            _player = owner as Player;
 
-            Debug.Assert(Player != null, $"{gameObject.name} is not attached to player");
+            Debug.Assert(_player != null, $"{gameObject.name} is not attached to player");
 
             _renderer = Owner.GetModule<IRenderer>();
             _statModule = Owner.GetModule<IStatModule>();
@@ -55,8 +54,6 @@ namespace Agents.Players
             Debug.Assert(_renderer != null, $"{gameObject.name} is not attached to renderer");
             Debug.Assert(_dashLoadoutModule != null, $"{gameObject.name} is not attached to player");
             Debug.Assert(_basicAttackModule != null, $"{gameObject.name} has no PlayerBasicAttackModule component");
-
-            RegisterInitialSkills();
         }
 
         public void AfterInit()
@@ -74,17 +71,6 @@ namespace Agents.Players
         public void GenerateImpulse(Vector3 impulseVelocity)
         {
             _impulseSource.GenerateImpulse(impulseVelocity);
-        }
-
-        private void RegisterInitialSkills()
-        {
-            if (InitSkills == null)
-                return;
-
-            foreach (PlayerSkillDataSo skillData in InitSkills)
-            {
-                EnsureSkillRegistered(skillData, skillData.defaultKey);
-            }
         }
 
         private void SubscribeStats()
@@ -116,27 +102,27 @@ namespace Agents.Players
 
         private void RegisterInputEvents()
         {
-            if (Player?.PlayerInput == null)
+            if (_player?.PlayerInput == null)
                 return;
 
-            Player.PlayerInput.OnQKeyPressed += HandleQKeyPress;
-            Player.PlayerInput.OnDashKeyPressed += HandleDashKeyPress;
-            Player.PlayerInput.OnEKeyPressed += HandleEKeyPress;
-            Player.PlayerInput.OnRKeyPressed += HandleRKeyPress;
+            _player.PlayerInput.OnQKeyPressed += HandleQKeyPress;
+            _player.PlayerInput.OnDashKeyPressed += HandleDashKeyPress;
+            _player.PlayerInput.OnEKeyPressed += HandleEKeyPress;
+            _player.PlayerInput.OnRKeyPressed += HandleRKeyPress;
         }
 
         private void UnregisterInputEvents()
         {
-            if (Player?.PlayerInput == null)
+            if (_player?.PlayerInput == null)
                 return;
 
-            Player.PlayerInput.OnQKeyPressed -= HandleQKeyPress;
-            Player.PlayerInput.OnDashKeyPressed -= HandleDashKeyPress;
-            Player.PlayerInput.OnEKeyPressed -= HandleEKeyPress;
-            Player.PlayerInput.OnRKeyPressed -= HandleRKeyPress;
+            _player.PlayerInput.OnQKeyPressed -= HandleQKeyPress;
+            _player.PlayerInput.OnDashKeyPressed -= HandleDashKeyPress;
+            _player.PlayerInput.OnEKeyPressed -= HandleEKeyPress;
+            _player.PlayerInput.OnRKeyPressed -= HandleRKeyPress;
         }
 
-        public void AddSkill(PlayerSkillDataSo skillData, SkillKey bindKey = SkillKey.NONE)
+        private void AddSkill(PlayerSkillDataSo skillData, SkillKey bindKey = SkillKey.NONE)
         {
             if (!CanCreateSkill(skillData))
                 return;
@@ -151,7 +137,7 @@ namespace Agents.Players
                 return;
             }
 
-            skill.InitializeSkill(this, skillData);
+            skill.InitializeSkill(this);
 
             SkillKey resolvedBindKey = bindKey != SkillKey.NONE ? bindKey : skillData.defaultKey;
             skill.BindingKey = resolvedBindKey;
@@ -264,7 +250,7 @@ namespace Agents.Players
                 _skillDict[newSkillData.AssetIndex] = registeredSkill;
             }
 
-            registeredSkill.RefreshRuntimeSkillData(newSkillData);
+            registeredSkill.SetSkillData(newSkillData);
             registeredSkill.BindingKey = bindKey;
 
             if (ShouldStoreKeyBinding(bindKey))
@@ -308,16 +294,13 @@ namespace Agents.Players
             }
         }
 
-        private bool TryUseDashFromLoadout()
+        private void TryUseDashFromLoadout()
         {
-            if (!_dashLoadoutModule.TryPeekNextDashSkill(out PlayerSkillDataSo skillData))
-                return false;
+            if (!_dashLoadoutModule.TryPeekNextDashSkill(out PlayerSkillDataSo skillData)) return;
 
-            if (!TryStartSkillByData(skillData, shouldMarkDashSequence: true))
-                return false;
+            if (!TryStartSkillByData(skillData, shouldMarkDashSequence: true)) return;
 
             _dashLoadoutModule.AdvanceToNextDashSkill();
-            return true;
         }
 
         private void EndDashSequenceIfChargeable()
@@ -389,7 +372,7 @@ namespace Agents.Players
 
         private void EnterAttackState(bool shouldMarkDashSequence)
         {
-            Player.ChangeState(PlayerStateEnum.ATTACK);
+            _player.ChangeState(PlayerStateEnum.ATTACK);
 
             if (shouldMarkDashSequence)
                 _dashLoadoutModule.MarkDashSkillStarted();

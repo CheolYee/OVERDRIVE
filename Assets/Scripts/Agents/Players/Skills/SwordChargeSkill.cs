@@ -23,10 +23,10 @@ namespace Agents.Players.Skills
         private IMover _mover;
         private AbstractDamageCaster _damageCaster;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
-            _mover = skillModule.Owner.GetModule<IMover>();
+            base.OnInitialized();
+            _mover = _player.GetModule<IMover>();
             
             Debug.Assert(_mover != null, $"{gameObject.name} is not attached to mover");
             

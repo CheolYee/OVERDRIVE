@@ -1,5 +1,7 @@
 using System;
 using DG.Tweening;
+using Gamelib.SoundSystem;
+using Systems.Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -236,6 +238,7 @@ namespace UI.SkillReward
             if (_currentData == null)
                 return;
 
+            SoundPlayManager.Instance.PlaySfx(SfxSounds.CARD_SELECT, transform.position);
             OnAcquireRequested?.Invoke(_currentData);
         }
     }

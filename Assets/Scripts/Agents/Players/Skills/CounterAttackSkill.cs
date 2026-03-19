@@ -23,16 +23,17 @@ namespace Agents.Players.Skills
         private IMover _mover;
         private float _startTime;
         private bool _isCounterSuccess;
-        
-        public override void InitializeSkill(ISkillModule skillModule)
+
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
+            base.OnInitialized();
             _hitResults = new Collider2D[10];
-            _renderer = skillModule.Owner.GetModule<IRenderer>();
-            _mover = skillModule.Owner.GetModule<IMover>();
+            _renderer = _player.GetModule<IRenderer>();
+            _mover = _player.GetModule<IMover>();
             Debug.Assert(_mover != null, $"{gameObject.name} is not attached to mover");
             Debug.Assert(_renderer != null, $"{gameObject.name} is not attached to renderer");
         }
+
         public override bool CanUseSkill(GameObject target = null)
         {
             return NormalizedCooldown >= 1f && !IsAttacking && _player.GetCurrentState() is ICanCounterState;

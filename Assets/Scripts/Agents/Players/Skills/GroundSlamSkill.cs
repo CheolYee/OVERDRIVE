@@ -24,11 +24,11 @@ namespace Agents.Players.Skills
         [SerializeField] private AbstractDamageCaster slamDamageCaster;
         [SerializeField] private Vector2 slamKnockbackForce;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
-            _mover = skillModule.Owner.GetModule<IMover>();
-            _renderer = skillModule.Owner.GetModule<IRenderer>();
+            base.OnInitialized();
+            _mover = _player.GetModule<IMover>();
+            _renderer = _player.GetModule<IRenderer>();
             Debug.Assert(_mover != null, $"{gameObject.name} is not attached to mover");
             Debug.Assert(_renderer != null, $"{gameObject.name} is not attached to renderer");
             

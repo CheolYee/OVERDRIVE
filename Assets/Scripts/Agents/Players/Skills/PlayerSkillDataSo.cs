@@ -18,5 +18,7 @@ namespace Agents.Players.Skills
         public GameObject prefab;
         
         [TextArea] public string description;
+
+        public bool isBasicAttack;
     }
 }

@@ -19,4 +19,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 131c84e305f0dcb4da985d9fe75b6dd1, type: 2}
   - {fileID: 11400000, guid: bcf1c97aaf0f67c4a8acfa77f2d6896f, type: 2}
   - {fileID: 11400000, guid: 5b8103f3d8fcb5f41af3019c5f8231e0, type: 2}
+  - {fileID: 11400000, guid: cbcec17fbc2f7164bb2895d45a86d702, type: 2}
+  - {fileID: 11400000, guid: 505a8962c0ee12f4e988fa3f873faba7, type: 2}
+  - {fileID: 11400000, guid: 183eaa0c37f74ed49b1811b203ab0c66, type: 2}
+  - {fileID: 11400000, guid: 2c823d1f4ea3a294a96c9f4581f9ae7d, type: 2}
+  - {fileID: 11400000, guid: 587500bc5cea52b45912e9d1b8c1639f, type: 2}
+  - {fileID: 11400000, guid: ac02b1b85194eb14ab4a1f5f0df8e3f9, type: 2}
   enumName: PlayerSkill

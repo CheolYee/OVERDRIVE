@@ -1,8 +1,9 @@
-﻿using System;
-using Agents.Enemies.BT.Events;
+﻿using Agents.Enemies.BT.Events;
 using CombatSystem;
 using Gamelib.ObjectPool.Runtime;
+using Gamelib.SoundSystem;
 using Systems.AnimationSystems;
+using Systems.Managers;
 using Unity.Behavior;
 using UnityEngine;
 
@@ -11,9 +12,9 @@ namespace Agents.Enemies
     public abstract class AbstractEnemy : Agent, IPoolable
     {
         [field: SerializeField] public AttackConfigSO AttackConfig { get; private set; }
-        [field: SerializeField] public PoolItemSo PoolItem { get; set; }
         [SerializeField] private PoolManagerSo poolManager;
-        public BehaviorGraphAgent BTAgent { get; private set; }
+        [field: SerializeField] public PoolItemSo PoolItem { get; set; }
+        public BehaviorGraphAgent BtAgent { get; private set; }
         public IMover Mover { get; private set; }
         public IRenderer Renderer { get; private set; }
         public ISkillModule SkillModule { get; private set; }
@@ -31,8 +32,8 @@ namespace Agents.Enemies
         protected override void InitializeComponents()
         {
             base.InitializeComponents();
-            BTAgent = GetComponent<BehaviorGraphAgent>();
-            Debug.Assert(BTAgent != null, $"{gameObject.name} is not attached to BTAgent");
+            BtAgent = GetComponent<BehaviorGraphAgent>();
+            Debug.Assert(BtAgent != null, $"{gameObject.name} is not attached to BTAgent");
 
             Mover = GetModule<IMover>();
             Renderer = GetModule<IRenderer>();
@@ -73,6 +74,7 @@ namespace Agents.Enemies
 
         public void SetDead()
         {
+            SoundPlayManager.Instance.PlaySfx(SfxSounds.ENEMY_DEAD, transform.position);
             gameObject.layer = LayerMask.NameToLayer("DeadBody");
             poolManager.Push(this);
         }
@@ -81,7 +83,7 @@ namespace Agents.Enemies
         {
             Debug.Assert(!string.IsNullOrEmpty(variableName), $"Variable name is empty");
 
-            if (BTAgent.GetVariable<T>(variableName, out BlackboardVariable<T> variable))
+            if (BtAgent.GetVariable(variableName, out BlackboardVariable<T> variable))
             {
                 variable.Value = value;
             }
@@ -95,7 +97,7 @@ namespace Agents.Enemies
         {
             Debug.Assert(!string.IsNullOrEmpty(variableName), "Variable name is empty");
             
-            return BTAgent.GetVariable(variableName, out variable);
+            return BtAgent.GetVariable(variableName, out variable);
         }
 
         private void OnDrawGizmosSelected()

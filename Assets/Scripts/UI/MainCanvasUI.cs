@@ -1,4 +1,3 @@
-using System;
 using Gamelib.EventSystem;
 using Systems;
 using Systems.GameEvents;

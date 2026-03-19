@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Iron Sword
   m_EditorClassIdentifier: 
   soundIndex: 0
-  soundName: Iron Sword 1
+  soundName: Iron Sword
   audioType: 0
   clip: {fileID: 8300000, guid: 898b3724fd8f2a74dbe2947e119e5c80, type: 3}
   loop: 0

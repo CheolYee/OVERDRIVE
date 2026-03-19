@@ -11,7 +11,6 @@ namespace Systems.GameEvents
     public class CameraSwapEvent : GameEvent
     {
         public CinemachineCamera NextCamera { get; private set; }
-
         public CameraSwapEvent Init(CinemachineCamera nextCamera)
         {
             NextCamera = nextCamera;

@@ -1,4 +1,3 @@
-using System;
 using Agents.Players;
 using Agents.Players.Skills;
 using Gamelib.EventSystem;
@@ -26,20 +25,10 @@ namespace UI.SkillPreviews
             _dashLoadoutModule = _player.GetModule<IPlayerDashLoadoutModule>();
             Debug.Assert(_player != null, $"[PlayerDashUiEventBridge] : 플레이어가 없습니다.");
             Debug.Assert(_dashLoadoutModule != null, $"[PlayerDashUiEventBridge] : 로드아웃 대쉬 모듈이 없습니다.");
-        }
-
-        private void Start()
-        {
-            if (_dashLoadoutModule == null) return;
-
+            
             Subscribe();
             PublishLoadoutChanged();
             PublishPreviewChanged();
-        }
-
-        private void OnDisable()
-        {
-            Unsubscribe();
         }
 
         private void OnDestroy()

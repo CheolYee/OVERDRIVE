@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <AssetIndex>k__BackingField: 3
   minRange: 0
-  maxRange: 10
-  attackName: "\uB300\uC26C \uACF5\uACA9 - 2Lv"
+  maxRange: 8
+  attackName: "\uB300\uC26C \uACF5\uACA9 - Lv 2"
   idName: Dash Attack
   damageMultiplier: 1.2
   knockBackForce: {x: 2, y: 3}
@@ -29,3 +29,4 @@ MonoBehaviour:
   prefab: {fileID: 1979716108050611147, guid: 80f7f8834becfe0448b5bbb8151a46c7, type: 3}
   description: "\uC804\uBC29\uC73C\uB85C \uBE60\uB974\uAC8C \uB300\uC26C\uD558\uC5EC
     \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
+  isBasicAttack: 0

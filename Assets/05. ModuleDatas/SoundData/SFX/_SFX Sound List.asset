@@ -16,3 +16,7 @@ MonoBehaviour:
   sounds:
   - {fileID: 11400000, guid: 09b0762b79aa3e74592cca32207f36fc, type: 2}
   - {fileID: 11400000, guid: 66595f00e4c82f6438a8b526312151a3, type: 2}
+  - {fileID: 11400000, guid: 517ed186c5005b24ca7e5b3954d31e94, type: 2}
+  - {fileID: 11400000, guid: 0bd94f5d76723f14694f77e8731641ea, type: 2}
+  - {fileID: 11400000, guid: 412cb2d45fd94a5428601f918a669da1, type: 2}
+  - {fileID: 11400000, guid: 18c88a6d44fcee048a787af0dc19a616, type: 2}

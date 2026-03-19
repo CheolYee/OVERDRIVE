@@ -285,6 +285,8 @@ GameObject:
   - component: {fileID: 3916188293514387055}
   - component: {fileID: 2667343297794793466}
   - component: {fileID: 5787933993903662434}
+  - component: {fileID: 3168160366734812372}
+  - component: {fileID: 5251603969827714789}
   m_Layer: 0
   m_Name: Player Skill Module
   m_TagString: Untagged
@@ -322,10 +324,6 @@ MonoBehaviour:
   <AttackSpeedStat>k__BackingField: {fileID: 11400000, guid: b14cc94c7089d6d4ca073872253d4422, type: 2}
   <DamageStat>k__BackingField: {fileID: 11400000, guid: fac57633f15edc64b9e21a64ff8b0a00, type: 2}
   <AttackSpeedParam>k__BackingField: {fileID: 11400000, guid: c3e24718b0648be4ea28758c712975e8, type: 2}
-  <InitSkills>k__BackingField:
-  - {fileID: 11400000, guid: 8ac3a38a60edc5e40a13efb06d977c49, type: 2}
-  - {fileID: 11400000, guid: ea669ff95dae2d54bb942d036c17dda1, type: 2}
-  - {fileID: 11400000, guid: 131c84e305f0dcb4da985d9fe75b6dd1, type: 2}
 --- !u!114 &5787933993903662434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,6 +377,32 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: 0, y: -1, z: 0}
+--- !u!114 &3168160366734812372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8329426427717733694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d79b6d03d03447fbb18a80f90a1b729, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerEventChannel: {fileID: 11400000, guid: f353382fc533cbf4eacc1029e7071f85, type: 2}
+--- !u!114 &5251603969827714789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8329426427717733694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8df753a5c7b480f9e849704d53e2c53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerEventChannel: {fileID: 11400000, guid: f353382fc533cbf4eacc1029e7071f85, type: 2}
 --- !u!1 &8369395341878321242
 GameObject:
   m_ObjectHideFlags: 0
@@ -660,6 +684,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1312156464679088141}
     m_Modifications:
+    - target: {fileID: 1755544029365687718, guid: 89f82bc593dcea14b89aa0c99de0fa88, type: 3}
+      propertyPath: dashSlots.Array.data[0].equippedSkill
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1755544029365687718, guid: 89f82bc593dcea14b89aa0c99de0fa88, type: 3}
+      propertyPath: dashSlots.Array.data[2].equippedSkill
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2170514944908027059, guid: 89f82bc593dcea14b89aa0c99de0fa88, type: 3}
       propertyPath: player
       value: 

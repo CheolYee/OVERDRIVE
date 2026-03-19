@@ -22,10 +22,11 @@ MonoBehaviour:
   cooldown: 0.5
   skillId: 1
   level: 1
-  skillIcon: {fileID: 0}
+  skillIcon: {fileID: 21300000, guid: 70d0a246f8b17dd48a3024ffc56a83f4, type: 3}
   animatorParam: {fileID: 11400000, guid: 4e93c5c8df124cc4aa0c0cf5d6ea7f93, type: 2}
   nextState: 3
   defaultKey: 1
   prefab: {fileID: 6160401048530595314, guid: 3de5a72ec97393544a7fc1c200d79c41, type: 3}
   description: "\uACF5\uC911\uC5D0 \uC788\uC744 \uB54C \uC0AC\uC6A9 \uAC00\uB2A5\uD558\uBA70,
     \uD558\uB2E8\uC744 \uACF5\uACA9\uD569\uB2C8\uB2E4."
+  isBasicAttack: 1

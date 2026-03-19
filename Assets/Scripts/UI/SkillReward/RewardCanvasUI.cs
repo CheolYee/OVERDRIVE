@@ -1,6 +1,8 @@
 using System;
 using DG.Tweening;
+using Gamelib.SoundSystem;
 using Systems;
+using Systems.Managers;
 using UnityEngine;
 
 namespace UI.SkillReward
@@ -26,7 +28,9 @@ namespace UI.SkillReward
 
             WindowStatus = UIWindowStatus.OPENING;
             Time.timeScale = 0f;
+            UIInput?.SetEnable(false);
             UIInput?.SetPlayerInputEnable(false);
+            SoundPlayManager.Instance.PlaySfx(SfxSounds.CARD_PANEL_OPEN, transform.position);
 
             SetOverlay(true, true, () =>
             {
@@ -46,6 +50,7 @@ namespace UI.SkillReward
             {
                 WindowStatus = UIWindowStatus.CLOSED;
                 Time.timeScale = 1f;
+                UIInput?.SetEnable(true);
                 UIInput?.SetPlayerInputEnable(true);
                 endCallback?.Invoke();
             });

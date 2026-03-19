@@ -44,7 +44,7 @@ namespace UI.SkillPreviews
             bool hasSkill = skillData != null;
 
             if (skillNameText != null)
-                skillNameText.text = hasSkill ? skillData.attackName : "None";
+                skillNameText.text = hasSkill ? skillData.attackName : " ";
 
             if (skillIconImage != null)
             {

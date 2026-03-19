@@ -17,9 +17,9 @@ namespace Agents.Players.Skills
         private IMover _mover;
         private AbstractDamageCaster _damageCaster;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
+            base.OnInitialized();
             _renderer = _player.GetModule<IRenderer>();
             _trigger = _player.GetModule<IAnimatorTrigger>();
             _mover = _player.GetModule<IMover>();

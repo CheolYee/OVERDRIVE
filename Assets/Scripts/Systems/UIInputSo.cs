@@ -30,6 +30,13 @@ namespace Systems
         }
         
         public void SetPlayerInputEnable(bool isEnable) => playerInput.SetEnable(isEnable);
+        public void SetEnable(bool isEnable)
+        {
+            if (isEnable)
+                OnEnable();
+            else
+                OnDisable();
+        }
 
         #region 사용하지 않는 콜백함수
 

@@ -15,9 +15,9 @@ namespace Agents.Players.Skills
         private IAnimatorTrigger _trigger;
         private AbstractDamageCaster _damageCaster;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
+            base.OnInitialized();
             _trigger = _player.GetModule<IAnimatorTrigger>();
             Debug.Assert(_trigger != null, $"{gameObject.name} 소유자가 애니메이션 트리거를 가지고 있지 않습니다.");
             

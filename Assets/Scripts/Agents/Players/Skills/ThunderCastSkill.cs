@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using Agents.FSM;
 using Agents.Players.States;
-using CombatSystem;
 using UnityEngine;
 
 namespace Agents.Players.Skills
@@ -20,10 +18,10 @@ namespace Agents.Players.Skills
         private bool _isCharging;
         private float _chargingTime;
         private IMover _mover;
-
-        public override void InitializeSkill(ISkillModule skillModule)
+        
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
+            base.OnInitialized();
             _mover = _player.GetModule<IMover>();
         }
 

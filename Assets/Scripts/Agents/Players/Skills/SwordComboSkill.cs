@@ -18,29 +18,17 @@ namespace Agents.Players.Skills
         [SerializeField] private Vector2[] overrideKnockbackForce;
         [SerializeField] private Vector2[] casterSizes;
         [SerializeField] private SfxSounds[] comboSfx;
-        
+
         private IAnimatorTrigger _trigger;
         private IRenderer _renderer;
         private IMover _mover;
         private AbstractDamageCaster _damageCaster;
 
-        public override void InitializeSkill(ISkillModule skillModule)
+        protected override void OnInitialized()
         {
-            base.InitializeSkill(skillModule);
-            CacheComponents(skillModule);
-        }
-
-        public override void InitializeSkill(ISkillModule skillModule, PlayerSkillDataSo runtimeSkillData)
-        {
-            base.InitializeSkill(skillModule, runtimeSkillData);
-            CacheComponents(skillModule);
-        }
-
-        private void CacheComponents(ISkillModule skillModule)
-        {
-            _trigger = skillModule.Owner.GetModule<IAnimatorTrigger>();
-            _renderer = skillModule.Owner.GetModule<IRenderer>();
-            _mover = skillModule.Owner.GetModule<IMover>();
+            _trigger = _player.GetModule<IAnimatorTrigger>();
+            _renderer = _player.GetModule<IRenderer>();
+            _mover = _player.GetModule<IMover>();
 
             Debug.Assert(_trigger != null, $"{gameObject.name} is not attached to trigger");
             Debug.Assert(_renderer != null, $"{gameObject.name} is not attached to renderer");
@@ -50,9 +38,7 @@ namespace Agents.Players.Skills
             Debug.Assert(_damageCaster != null, $"{gameObject.name} is not attached to damage caster");
 
             if (_damageCaster != null)
-            {
                 _damageCaster.InitCaster(_player);
-            }
         }
 
         public override bool CanUseSkill(GameObject target = null)
@@ -72,9 +58,7 @@ namespace Agents.Players.Skills
             }
 
             if (comboCounter > 2 || Time.time >= _lastUseTime + comboWindow)
-            {
                 comboCounter = 0;
-            }
 
             _mover.CanManualMovement = false;
 
@@ -85,10 +69,10 @@ namespace Agents.Players.Skills
 
             Vector2 offset = comboCounter < casterOffsets.Length ? casterOffsets[comboCounter] : Vector2.zero;
             _damageCaster.transform.localPosition = offset;
-            
+
             Vector2 sizeOffset = comboCounter < casterSizes.Length ? casterSizes[comboCounter] : Vector2.zero;
             _damageCaster.SetBoxSize(sizeOffset);
-            
+
             _renderer.SetFloat(attackIndexParam, comboCounter);
 
             _trigger.OnAttackTrigger -= HandleAttackTrigger;
@@ -103,20 +87,16 @@ namespace Agents.Players.Skills
                 return;
 
             if (comboCounter < comboSfx.Length)
-            {
                 SoundPlayManager.Instance.PlaySfx(comboSfx[comboCounter], transform.position);
-            }
 
             float damage = _skillModule.GetBaseDamage(SkillData);
             Vector2 knockBackPower = comboCounter < overrideKnockbackForce.Length
                 ? overrideKnockbackForce[comboCounter]
                 : Vector2.zero;
-            
+
             bool isSuccess = _damageCaster.CastDamage(damage, knockBackPower);
             if (isSuccess)
-            {
                 _mover.StopImmediately(true, false);
-            }
         }
 
         private void AnimationEndTrigger()
@@ -139,9 +119,7 @@ namespace Agents.Players.Skills
             _skillModule.InvokeAttackEnd();
 
             if (_mover != null)
-            {
                 _mover.CanManualMovement = true;
-            }
         }
     }
 }

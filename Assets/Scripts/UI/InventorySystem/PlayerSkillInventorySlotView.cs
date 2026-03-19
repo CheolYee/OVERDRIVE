@@ -9,8 +9,6 @@ namespace UI.InventorySystem
     public class PlayerSkillInventorySlotView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         [SerializeField] private Image skillIconImage;
-        [SerializeField] private TextMeshProUGUI skillNameText;
-        [SerializeField] private TextMeshProUGUI levelText;
         [SerializeField] private CanvasGroup canvasGroup;
 
         private PlayerSkillDataSo _skillData;
@@ -34,12 +32,6 @@ namespace UI.InventorySystem
                 skillIconImage.sprite = hasSkill ? skillData.skillIcon : null;
                 skillIconImage.color = hasSkill ? Color.white : Color.clear;
             }
-
-            if (skillNameText != null)
-                skillNameText.text = hasSkill ? skillData.attackName : string.Empty;
-
-            if (levelText != null)
-                levelText.text = hasSkill ? $"Lv.{skillData.level}" : string.Empty;
         }
 
         public void OnBeginDrag(PointerEventData eventData)

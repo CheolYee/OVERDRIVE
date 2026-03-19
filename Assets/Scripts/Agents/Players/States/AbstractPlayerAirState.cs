@@ -9,8 +9,6 @@ namespace Agents.Players.States
         public AbstractPlayerAirState(Agent owner, AnimParamSO stateParam) : base(owner, stateParam)
         {
         }
-        //여기서 키보드 입력을 받아서 Mover에 전달하도록 코드를 작성하시고, Jump와 Fall전부 이것을 상속받아서 만들어지도록 합니다. 
-        // 그리고 이 상태일때는 이동속도고 80% 로 되어야 합니다. SetMoveSpeedMultiplier
 
         public override void Enter()
         {

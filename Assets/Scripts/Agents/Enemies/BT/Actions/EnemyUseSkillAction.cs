@@ -15,7 +15,6 @@ namespace Agents.Enemies.BT.Actions
         [SerializeReference] public BlackboardVariable<GameObject> Target;
 
         private bool _isSkillEnd;
-
         protected override Status OnStart()
         {
             if (Enemy.Value == null || Enemy.Value.SkillModule == null)

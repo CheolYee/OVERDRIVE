@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 225100e51cea4d1ca362305874ce8b1d, type: 3}
+  m_Name: Teleport Skill Lv 1
+  m_EditorClassIdentifier: 
+  <AssetIndex>k__BackingField: 8
+  minRange: 0
+  maxRange: 12
+  attackName: "\uD154\uB808\uD3EC\uD2B8 - Lv 1"
+  idName: Teleport
+  damageMultiplier: 1
+  knockBackForce: {x: 0, y: 0}
+  cooldown: 0.8
+  skillId: 4
+  level: 1
+  skillIcon: {fileID: 21300000, guid: 12db10fcc0355d3479aba8457466c7ae, type: 3}
+  animatorParam: {fileID: 11400000, guid: 2e4185be063927e46ab2ef0f3aa73ae1, type: 2}
+  nextState: 3
+  defaultKey: 2
+  prefab: {fileID: 3280762583211264874, guid: dd36ce2e82ba0c5478566621d5380e38, type: 3}
+  description: "\uBC94\uC704 12 \uC548\uC758 \uC788\uB294 \uC801\uC911 \uD558\uB098\uC5D0\uAC8C
+    \uB79C\uB364 \uD154\uB808\uD3EC\uB4DC \uD569\uB2C8\uB2E4."
+  isBasicAttack: 0
