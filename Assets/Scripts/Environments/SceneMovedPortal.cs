@@ -31,7 +31,6 @@ namespace Environments
         private void Start()
         {
             _isTriggered = false;
-            SoundPlayManager.Instance.PlayBgm(BgmSounds.LOBBY_BGM, transform.position);
         }
 
         private void OnTriggerEnter2D(Collider2D other)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Systems.Stages
 {
-    public abstract class StageDoorAnimatorView : MonoBehaviour
+    public class StageDoorAnimatorView : MonoBehaviour
     {
         [SerializeField] private Animator animator;
         [SerializeField] private AnimParamSO openParam;

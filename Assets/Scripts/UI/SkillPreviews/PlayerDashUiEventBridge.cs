@@ -16,16 +16,28 @@ namespace UI.SkillPreviews
 
         private void Awake()
         {
-            playerEventChannel.AddListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
+            if (playerEventChannel != null)
+                playerEventChannel.AddListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
         }
 
         public void HandlePlayerDataSetUp(PlayerDataSetUpEvent evt)
         {
+            Unsubscribe();
+
             _player = evt.PlayerData.Player;
-            _dashLoadoutModule = _player.GetModule<IPlayerDashLoadoutModule>();
             Debug.Assert(_player != null, $"[PlayerDashUiEventBridge] : 플레이어가 없습니다.");
-            Debug.Assert(_dashLoadoutModule != null, $"[PlayerDashUiEventBridge] : 로드아웃 대쉬 모듈이 없습니다.");
-            
+
+            if (_player == null)
+                return;
+
+            _dashLoadoutModule = _player.GetModule<IPlayerDashLoadoutModule>();
+
+            if (_dashLoadoutModule == null)
+            {
+                Debug.Log($"[PlayerDashUiEventBridge] : 현재 씬 플레이어에 대쉬 로드아웃 모듈이 없어 브릿지 연결을 생략합니다.");
+                return;
+            }
+
             Subscribe();
             PublishLoadoutChanged();
             PublishPreviewChanged();
@@ -33,6 +45,9 @@ namespace UI.SkillPreviews
 
         private void OnDestroy()
         {
+            if (playerEventChannel != null)
+                playerEventChannel.RemoveListener<PlayerDataSetUpEvent>(HandlePlayerDataSetUp);
+
             Unsubscribe();
         }
 

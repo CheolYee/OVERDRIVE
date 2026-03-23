@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Agents;
 using Agents.Enemies;
+using Environments;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
+using Systems.AnimationSystems;
+using Systems.Database;
 using Systems.GameEvents;
 using Systems.StageSystem;
 using UnityEngine;
@@ -20,7 +23,7 @@ namespace Systems.Stages
         [SerializeField] private EventChannelSO playerChannel;
 
         [Header("Camera")]
-        [SerializeField] private MonoBehaviour cameraBoundaryApplierProvider; // IStageCameraBoundaryApplier 구현체
+        [SerializeField] private CinemachineStageConfiner2DApplier cameraBoundaryApplierProvider; // IStageCameraBoundaryApplier 구현체
 
         [Header("Options")]
         [SerializeField] private bool startOnStart = true;
@@ -29,6 +32,8 @@ namespace Systems.Stages
         private IMover _playerMover;
         private IStageCameraBoundaryApplier _cameraBoundaryApplier;
 
+        private readonly List<SkillRewardChest> _spawnedChests = new();
+        private readonly List<StageChestSpawnPoint> _chestSpawnPointBuffer = new();
         private readonly List<AbstractEnemy> _spawnedEnemies = new();
         private readonly List<StageEnemySpawnPoint> _spawnPointBuffer = new();
         private readonly HashSet<int> _countedDeadEnemyIds = new();
@@ -56,7 +61,7 @@ namespace Systems.Stages
         {
             _playerTransform = obj.PlayerData.Player.transform;
             _playerMover = obj.PlayerData.Player.GetModule<IMover>();
-            _cameraBoundaryApplier = cameraBoundaryApplierProvider as IStageCameraBoundaryApplier;
+            _cameraBoundaryApplier = cameraBoundaryApplierProvider;
 
             Debug.Assert(_playerTransform != null, $"{name} : playerTransform이 없습니다.");
             Debug.Assert(_playerMover != null, $"{name} : playerMoverProvider는 IMover를 구현해야 합니다.");
@@ -80,7 +85,7 @@ namespace Systems.Stages
             }
         }
 
-        public void StartRun()
+        private void StartRun()
         {
             StopRun();
 
@@ -96,7 +101,7 @@ namespace Systems.Stages
             SpawnNextRoomImmediate();
         }
 
-        public void StopRun()
+        private void StopRun()
         {
             _isRunActive = false;
             _isTransitioning = false;
@@ -105,6 +110,7 @@ namespace Systems.Stages
                 _playerMover.CanManualMovement = true;
 
             ClearCurrentEnemies();
+            ClearCurrentChests();
             ClearCurrentRoom();
 
             _countedDeadEnemyIds.Clear();
@@ -154,17 +160,18 @@ namespace Systems.Stages
             if (_playerMover != null)
                 _playerMover.CanManualMovement = false;
 
-            RequestFade(true, HandleFadeCovered);
+            RequestFade(false, HandleFadeCovered);
         }
 
         private void HandleFadeCovered()
         {
             ClearCurrentEnemies();
+            ClearCurrentChests();
             ClearCurrentRoom();
 
             SpawnNextRoomImmediate();
 
-            RequestFade(false, FinishTransition);
+            RequestFade(true, FinishTransition);
         }
 
         private void FinishTransition()
@@ -207,6 +214,7 @@ namespace Systems.Stages
 
             WarpPlayerToRoomStart(_currentRoom);
 
+            SpawnChests(nextMapData, _currentRoom);
             _aliveEnemyCount = SpawnEnemies(nextMapData, _currentRoom);
 
             if (_aliveEnemyCount == 0)
@@ -216,6 +224,51 @@ namespace Systems.Stages
             }
 
             _lastMapData = nextMapData;
+        }
+        
+        private void SpawnChests(StageMapDataSO mapData, StageRoom room)
+        {
+            StageChestSpawnPoint[] spawnPoints = room.ChestSpawnPoints;
+            if (spawnPoints == null || spawnPoints.Length == 0)
+                return;
+
+            int spawnCount = mapData.GetChestSpawnCount(spawnPoints.Length);
+            if (spawnCount <= 0)
+                return;
+
+            _chestSpawnPointBuffer.Clear();
+            _chestSpawnPointBuffer.AddRange(spawnPoints);
+            Shuffle(_chestSpawnPointBuffer);
+
+            for (int i = 0; i < spawnCount; i++)
+            {
+                if (!mapData.TryGetRandomChestPoolItem(out PoolItemSo chestPoolItem) || chestPoolItem == null)
+                    continue;
+
+                SkillRewardChest chest = poolManager.Pop<SkillRewardChest>(chestPoolItem);
+                if (chest == null)
+                    continue;
+
+                StageChestSpawnPoint spawnPoint = _chestSpawnPointBuffer[i];
+                chest.transform.SetPositionAndRotation(spawnPoint.Position, spawnPoint.Rotation);
+                if (spawnPoint.isFlipChest)
+                    chest.GetModule<IRenderer>().Flip();
+
+                _spawnedChests.Add(chest);
+            }
+        }
+        
+        private void ClearCurrentChests()
+        {
+            foreach (var chest in _spawnedChests)
+            {
+                if (chest == null || chest.gameObject == null || !chest.gameObject.activeSelf)
+                    continue;
+
+                poolManager.Push(chest);
+            }
+
+            _spawnedChests.Clear();
         }
 
         private StageMapDataSO SelectNextMapData()
@@ -260,12 +313,14 @@ namespace Systems.Stages
 
             for (int i = 0; i < spawnCount; i++)
             {
-                if (!mapData.TryGetRandomEnemyPoolItem(out PoolItemSo enemyPoolItem) || enemyPoolItem == null)
+                if (!mapData.TryGetRandomEnemyData(out EnemyDataSo enemyData) || enemyData == null)
                     continue;
 
-                AbstractEnemy enemy = poolManager.Pop<AbstractEnemy>(enemyPoolItem);
+                AbstractEnemy enemy = poolManager.Pop<AbstractEnemy>(enemyData.enemyPoolItem);
                 if (enemy == null)
                     continue;
+                
+                enemy.Renderer.SetAnimator(enemyData.animatorController);
 
                 StageEnemySpawnPoint spawnPoint = _spawnPointBuffer[i];
                 enemy.transform.SetPositionAndRotation(spawnPoint.Position, spawnPoint.Rotation);
@@ -353,7 +408,6 @@ namespace Systems.Stages
                 return;
             }
 
-            // 네 프로젝트의 FadeEvent가 이전에 보여준 Init 패턴이라는 전제
             uiEventChannel.RaiseEvent(
                 new FadeEvent().Init(isFadeIn, config.TransitionDuration, onFadeEnd));
         }

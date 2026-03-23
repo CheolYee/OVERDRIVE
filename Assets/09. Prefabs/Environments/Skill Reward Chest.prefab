@@ -93,10 +93,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62e757ee862a4d1f90ce63b00f0db875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <PoolItem>k__BackingField: {fileID: 11400000, guid: af8002eeee7a6c540b164e033b03c213, type: 2}
   uiEventChannel: {fileID: 11400000, guid: 5bec2e8d3e192644a971f4b5d0676ee3, type: 2}
+  poolManager: {fileID: 11400000, guid: 5e69ff3424eec6948ad9777aaeecaa40, type: 2}
   openAnimParam: {fileID: 11400000, guid: f4d84fd580188b74187d6187e61504ef, type: 2}
   idleAnimParam: {fileID: 11400000, guid: bb5b8cf07cc54f04d8b500d516e3a29e, type: 2}
-  isFlip: 0
+  returnDelay: 1
 --- !u!50 &4385021995408849514
 Rigidbody2D:
   serializedVersion: 5
@@ -199,9 +201,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -894704383
-  m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingLayerID: -2028170183
+  m_SortingLayer: -2
+  m_SortingOrder: 24
   m_Sprite: {fileID: 21300000, guid: c0a2828beacd63f44973dbd3add3d0e7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

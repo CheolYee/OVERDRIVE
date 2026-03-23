@@ -69,6 +69,8 @@ namespace Agents.Players
 
         protected override void HandleHealthChange(float before, float current, float max)
         {
+            if (current <= 0)
+                ChangeState(PlayerStateEnum.DEAD);
         }
 
         protected override void Start()
@@ -79,7 +81,7 @@ namespace Agents.Players
         
         private void HandleAttackKeyPressed()
         {
-            _skillModule.TryUseBasicAttack();
+            _skillModule?.TryUseBasicAttack();
         }
         private void HandleJumpKeyPressed()
         {
@@ -91,6 +93,8 @@ namespace Agents.Players
         }
         
         public void ResetJumpCount() => _currentJumpCount = JumpCount;
+
+        public void OnDeath() => PlayerEventChannel.RaiseEvent(UIEvents.DeadPanel);
 
 
         private void Update()

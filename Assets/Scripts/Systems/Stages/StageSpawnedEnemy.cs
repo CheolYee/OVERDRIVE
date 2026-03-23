@@ -6,16 +6,6 @@ using UnityEngine;
 
 namespace Systems.Stages
 {
-    public interface IStageSpawnedEnemy
-    {
-        void Bind(
-            EventChannelSO stageEventChannel,
-            int runId,
-            int roomId,
-            int enemyRuntimeId,
-            StageEnemyModifierData modifierData);
-    }
-
     [RequireComponent(typeof(AbstractEnemy))]
     public class StageSpawnedEnemy : MonoBehaviour, IStageSpawnedEnemy
     {

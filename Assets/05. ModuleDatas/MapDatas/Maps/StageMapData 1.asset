@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef6b8c2e9b6346198fbb3ba3d49e1ff6, type: 3}
   m_Name: StageMapData 1
   m_EditorClassIdentifier: 
-  <RoomPoolItem>k__BackingField: {fileID: 0}
-  minSpawnCount: 2
-  maxSpawnCount: 4
-  enemyOptions: []
+  <RoomPoolItem>k__BackingField: {fileID: 11400000, guid: 7b80e1c5afdb91a4b8fd5e47618e090e, type: 2}
+  minSpawnCount: 5
+  maxSpawnCount: 10
+  enemyOptions:
+  - enemyData: {fileID: 11400000, guid: fbceab0eaa2026647b91e0fa4b361192, type: 2}
+    weight: 1
+  minChestCount: 2
+  maxChestCount: 3
+  chestOptions:
+  - chestPoolItem: {fileID: 11400000, guid: af8002eeee7a6c540b164e033b03c213, type: 2}
+    weight: 1

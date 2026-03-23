@@ -6,6 +6,7 @@ namespace Systems.GameEvents
     public static class UIEvents
     {
         public static readonly FadeEvent Fade = new FadeEvent();
+        public static readonly DeadPanelEvent DeadPanel = new DeadPanelEvent();
     }
 
     public class FadeEvent : GameEvent
@@ -22,4 +23,6 @@ namespace Systems.GameEvents
             return this;
         }
     }
+
+    public class DeadPanelEvent : GameEvent { }
 }

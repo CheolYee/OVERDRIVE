@@ -337,6 +337,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1138659530219284428}
     m_Modifications:
+    - target: {fileID: 2641204192220688279, guid: 1da5f2368ae171543b7e089b69adc3a6, type: 3}
+      propertyPath: uiInputSo
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a979d9b234bade40bda82f5b083d505, type: 2}
+    - target: {fileID: 2641204192220688279, guid: 1da5f2368ae171543b7e089b69adc3a6, type: 3}
+      propertyPath: effectDuration
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3075831221382546073, guid: 1da5f2368ae171543b7e089b69adc3a6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -5,12 +5,6 @@ using UnityEngine;
 
 namespace Systems.Stages
 {
-    public class StageEnemySpawnPoint : MonoBehaviour
-    {
-        public Vector3 Position => transform.position;
-        public Quaternion Rotation => transform.rotation;
-    }
-
     public class StageRoom : PoolableMono
     {
         [Header("Room References")]
@@ -18,6 +12,7 @@ namespace Systems.Stages
         [SerializeField] private StageExitDoor exitDoor;
         [SerializeField] private Collider2D cameraBoundary;
         [SerializeField] private StageEnemySpawnPoint[] enemySpawnPoints;
+        [SerializeField] private StageChestSpawnPoint[] chestSpawnPoints;
 
         private EventChannelSO _stageEventChannel;
         private int _runId = -1;
@@ -26,6 +21,7 @@ namespace Systems.Stages
         public Transform PlayerSpawnPoint => playerSpawnPoint;
         public Collider2D CameraBoundary => cameraBoundary;
         public StageEnemySpawnPoint[] EnemySpawnPoints => enemySpawnPoints;
+        public StageChestSpawnPoint[] ChestSpawnPoints => chestSpawnPoints;
 
         public void Bind(EventChannelSO stageEventChannel, int runId, int roomId)
         {
@@ -89,6 +85,9 @@ namespace Systems.Stages
 
             if (enemySpawnPoints == null || enemySpawnPoints.Length == 0)
                 enemySpawnPoints = GetComponentsInChildren<StageEnemySpawnPoint>(true);
+
+            if (chestSpawnPoints == null || chestSpawnPoints.Length == 0)
+                chestSpawnPoints = GetComponentsInChildren<StageChestSpawnPoint>(true);
         }
     }
 }

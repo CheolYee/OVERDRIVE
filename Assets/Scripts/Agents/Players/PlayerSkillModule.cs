@@ -263,6 +263,7 @@ namespace Agents.Players
         {
             if (isPressed)
             {
+                Debug.Log("일단 스킬 키 눌림");
                 TryUseDashFromLoadout();
                 return;
             }
@@ -297,10 +298,13 @@ namespace Agents.Players
         private void TryUseDashFromLoadout()
         {
             if (!_dashLoadoutModule.TryPeekNextDashSkill(out PlayerSkillDataSo skillData)) return;
+            Debug.Log("스킬 찾는 중");
 
             if (!TryStartSkillByData(skillData, shouldMarkDashSequence: true)) return;
+            Debug.Log("스킬 실행");
 
             _dashLoadoutModule.AdvanceToNextDashSkill();
+            Debug.Log("다음 스킬로 변경됨");
         }
 
         private void EndDashSequenceIfChargeable()

@@ -59,7 +59,7 @@ GameObject:
   - component: {fileID: 6127930399070256135}
   - component: {fileID: 4985091056632399198}
   - component: {fileID: 6973069776392559711}
-  - component: {fileID: 2003853038414431184}
+  - component: {fileID: 695736800866745049}
   m_Layer: 7
   m_Name: MeleeAttackEnemy
   m_TagString: Untagged
@@ -218,7 +218,7 @@ MonoBehaviour:
   <AttackConfig>k__BackingField: {fileID: 11400000, guid: 76d8ca883243d014295558edc661e988, type: 2}
   poolManager: {fileID: 11400000, guid: 5e69ff3424eec6948ad9777aaeecaa40, type: 2}
   <PoolItem>k__BackingField: {fileID: 11400000, guid: 00edad10be23ccf4693cd6eb020614f9, type: 2}
---- !u!114 &2003853038414431184
+--- !u!114 &695736800866745049
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -227,7 +227,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3227687190721875765}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e79bd8cbc4ef47fdae02a1e8b4ac8034, type: 3}
+  m_Script: {fileID: 11500000, guid: f7a66439a0864afb8ea134f942f87e68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4781400720538426166

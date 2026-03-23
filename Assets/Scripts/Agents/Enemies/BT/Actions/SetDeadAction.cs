@@ -1,4 +1,5 @@
 using System;
+using Systems.AnimationSystems;
 using Unity.Behavior;
 using Unity.Properties;
 using UnityEngine;
@@ -12,13 +13,26 @@ namespace Agents.Enemies.BT.Actions
     {
         [SerializeReference] public BlackboardVariable<AbstractEnemy> Enemy;
 
+        IAnimatorTrigger _animatorTrigger;
         protected override Status OnStart()
         {
             if (Enemy.Value == null)
                 return Status.Failure;
             
-            Enemy.Value.SetDead();
+            _animatorTrigger = Enemy.Value.GetModule<IAnimatorTrigger>();
+
+
+            _animatorTrigger.OnAnimationEnd += OnAnimEnd;
             return Status.Success;
+        }
+
+        private void OnAnimEnd()
+        {
+            if (Enemy.Value == null || _animatorTrigger == null)
+                return;
+                
+            _animatorTrigger.OnAnimationEnd -= OnAnimEnd;
+            Enemy.Value.SetDead();
         }
     }
 }

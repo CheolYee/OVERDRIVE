@@ -7,6 +7,7 @@ namespace Systems.Database
         JUMP_ATTACK = 1,
         DASH_ATTACK = 2,
         SPIN_ATTACK = 3,
-        TELEPORT = 4
+        TELEPORT = 4,
+        ROLL_ATTACK = 5
     }
 }

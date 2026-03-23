@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Player DEAD State Data
   m_EditorClassIdentifier: 
   stateName: DEAD
-  className: Agents.Players.States.PlayerMoveState
-  stateIndex: 1
+  className: Agents.Players.States.PlayerDeadState
+  stateIndex: 5
   stateParam: {fileID: 11400000, guid: d089d897d1fc4d747abba6bfde254b8e, type: 2}

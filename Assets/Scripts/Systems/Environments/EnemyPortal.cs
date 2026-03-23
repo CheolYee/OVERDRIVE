@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections;
 using Agents.Enemies;
 using Gamelib.ObjectPool.Runtime;
@@ -46,11 +46,6 @@ namespace Systems.Environments
                 return;
 
             _spawnRoutine = StartCoroutine(SpawnRoutine());
-        }
-
-        private void Start()
-        {
-            SoundPlayManager.Instance.PlayBgm(BgmSounds.COMBAT_BGM, transform.position);
         }
 
         public void StopSpawn()
@@ -151,4 +146,4 @@ namespace Systems.Environments
             Gizmos.DrawWireCube(boxCenter, size);
         }
     }
-}
+}*/

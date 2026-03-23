@@ -1,8 +1,11 @@
-﻿namespace Systems.AnimationSystems
+﻿using UnityEngine;
+
+namespace Systems.AnimationSystems
 {
     public interface IRenderer
     {
         float FacingDirection { get; }
+        void SetAnimator(RuntimeAnimatorController animator);
         void PlayClip(int clipHash, int layer = -1, float normalizedTime = 0);
         void SetBool(AnimParamSO param, bool value);
         void SetFloat(AnimParamSO param, float value);

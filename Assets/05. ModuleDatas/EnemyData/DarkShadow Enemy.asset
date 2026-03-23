@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4c5540f03ab4b9188e09a7d0a2d4e6a, type: 3}
+  m_Name: DarkShadow Enemy
+  m_EditorClassIdentifier: 
+  <AssetIndex>k__BackingField: 0
+  enemyName: DarkShadow
+  enemyPoolItem: {fileID: 11400000, guid: 00edad10be23ccf4693cd6eb020614f9, type: 2}
+  animatorController: {fileID: 9100000, guid: e91d3062db053ac48b47c09346e1318b, type: 2}

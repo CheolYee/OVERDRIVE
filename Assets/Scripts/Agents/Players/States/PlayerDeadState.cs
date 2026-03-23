@@ -28,7 +28,8 @@ namespace Agents.Players.States
             base.Update();
             if (_isTriggerCall)
             {
-                
+                _player.onDeath?.Invoke();
+                _player.OnDeath();
             }
         }
 

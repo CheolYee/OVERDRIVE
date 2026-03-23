@@ -8,15 +8,21 @@ namespace Agents
     [RequireComponent(typeof(Animator))]
     public class AgentRenderer : MonoBehaviour, IModule, IRenderer, IAnimatorTrigger
     {
-        private Agent _owner;
+        private ModuleOwner _owner;
         private Animator _animator;
 
+        public Animator AnimatorController => _animator;
         [field: SerializeField] public float FacingDirection { get; private set; } = 1f; //외부에서도 고칠 수 있게.
         
         public void Initialize(ModuleOwner owner)
         {
-            _owner = owner as Agent;
+            _owner = owner;
             _animator = GetComponent<Animator>();
+        }
+
+        public void SetAnimator(RuntimeAnimatorController animator)
+        {
+            _animator.runtimeAnimatorController = animator;
         }
 
         public void PlayClip(int clipHash, int layer = -1, float normalizedTime = 0)

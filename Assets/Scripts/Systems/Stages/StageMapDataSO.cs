@@ -1,5 +1,6 @@
 using System;
 using Gamelib.ObjectPool.Runtime;
+using Systems.Database;
 using UnityEngine;
 
 namespace Systems.Stages
@@ -10,9 +11,16 @@ namespace Systems.Stages
         [Serializable]
         public struct EnemySpawnOption
         {
-            public PoolItemSo enemyPoolItem;
+            public EnemyDataSo enemyData;
             [Min(1)] public int weight;
         }
+        [Serializable]
+        public struct ChestSpawnOption
+        {
+            public PoolItemSo chestPoolItem;
+            [Min(1)] public int weight;
+        }
+        
 
         [field: Header("Room")]
         [field: SerializeField] public PoolItemSo RoomPoolItem { get; private set; }
@@ -33,9 +41,9 @@ namespace Systems.Stages
             return UnityEngine.Random.Range(clampedMin, clampedMax + 1);
         }
 
-        public bool TryGetRandomEnemyPoolItem(out PoolItemSo enemyPoolItem)
+        public bool TryGetRandomEnemyData(out EnemyDataSo enemyData)
         {
-            enemyPoolItem = null;
+            enemyData = null;
 
             if (enemyOptions == null || enemyOptions.Length == 0)
                 return false;
@@ -43,7 +51,7 @@ namespace Systems.Stages
             int totalWeight = 0;
             foreach (var option in enemyOptions)
             {
-                if (option.enemyPoolItem == null)
+                if (option.enemyData == null)
                     continue;
 
                 totalWeight += option.weight;
@@ -56,13 +64,13 @@ namespace Systems.Stages
 
             foreach (var option in enemyOptions)
             {
-                if (option.enemyPoolItem == null)
+                if (option.enemyData == null)
                     continue;
 
                 random -= option.weight;
                 if (random < 0)
                 {
-                    enemyPoolItem = option.enemyPoolItem;
+                    enemyData = option.enemyData;
                     return true;
                 }
             }
@@ -74,6 +82,59 @@ namespace Systems.Stages
         {
             if (maxSpawnCount < minSpawnCount)
                 maxSpawnCount = minSpawnCount;
+        }
+
+        [Header("Chest Spawn")]
+        [SerializeField, Min(0)] private int minChestCount;
+        [SerializeField, Min(0)] private int maxChestCount = 1;
+        [SerializeField] private ChestSpawnOption[] chestOptions;
+
+        public int GetChestSpawnCount(int availableSpawnPointCount)
+        {
+            if (availableSpawnPointCount <= 0)
+                return 0;
+
+            int clampedMin = Mathf.Clamp(minChestCount, 0, availableSpawnPointCount);
+            int clampedMax = Mathf.Clamp(maxChestCount, clampedMin, availableSpawnPointCount);
+
+            return UnityEngine.Random.Range(clampedMin, clampedMax + 1);
+        }
+
+        public bool TryGetRandomChestPoolItem(out PoolItemSo chestPoolItem)
+        {
+            chestPoolItem = null;
+
+            if (chestOptions == null || chestOptions.Length == 0)
+                return false;
+
+            int totalWeight = 0;
+            foreach (var option in chestOptions)
+            {
+                if (option.chestPoolItem == null)
+                    continue;
+
+                totalWeight += option.weight;
+            }
+
+            if (totalWeight <= 0)
+                return false;
+
+            int random = UnityEngine.Random.Range(0, totalWeight);
+
+            foreach (var option in chestOptions)
+            {
+                if (option.chestPoolItem == null)
+                    continue;
+
+                random -= option.weight;
+                if (random < 0)
+                {
+                    chestPoolItem = option.chestPoolItem;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

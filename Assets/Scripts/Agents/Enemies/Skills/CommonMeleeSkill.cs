@@ -45,7 +45,6 @@ namespace Agents.Enemies.Skills
             float damage = SkillModule.GetBaseDamage(SkillData);
             Vector2 knockBackPower = SkillData.knockBackForce;
             _damageCaster.CastDamage(damage, knockBackPower);
-            Debug.Log(damage);
         }
 
         private void HandleAttackEnd()

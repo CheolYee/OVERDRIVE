@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34734db6834b4f9f856fb9b579fae774, type: 3}
   m_Name: InfiniteStageConfig
   m_EditorClassIdentifier: 
-  mapList: []
+  mapList:
+  - {fileID: 11400000, guid: 39b2ddb4f5d0e26449c1158566084765, type: 2}
   avoidImmediateRepeat: 1
   transitionDuration: 0.35
   hpStat: {fileID: 11400000, guid: b840f7d21e2d0eb4d9aa527da6990d32, type: 2}

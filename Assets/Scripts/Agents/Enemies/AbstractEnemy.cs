@@ -43,6 +43,7 @@ namespace Agents.Enemies
             Debug.Assert(Renderer != null, $"{gameObject.name} is not attached to renderer");
             Debug.Assert(Renderer != null, $"{gameObject.name} is not attached to Skill Module");
         }
+        
         protected override void Start()
         {
             base.Start();
