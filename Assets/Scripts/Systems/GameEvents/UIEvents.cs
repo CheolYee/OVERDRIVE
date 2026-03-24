@@ -7,6 +7,7 @@ namespace Systems.GameEvents
     {
         public static readonly FadeEvent Fade = new FadeEvent();
         public static readonly DeadPanelEvent DeadPanel = new DeadPanelEvent();
+        public static readonly BlurPanelEvent BlurPanel = new BlurPanelEvent();
     }
 
     public class FadeEvent : GameEvent
@@ -20,6 +21,19 @@ namespace Systems.GameEvents
             IsFadeIn = isFadeIn;
             Duration = duration;
             OnFadeEnd = onFadeEnd;
+            return this;
+        }
+    }
+
+    public class BlurPanelEvent : GameEvent
+    {
+        public bool IsOpen { get; private set; }
+        public Action OnBlurEnd { get; private set; }
+
+        public BlurPanelEvent Init(bool isOpen, Action endCallback = null)
+        {
+            IsOpen = isOpen;
+            OnBlurEnd = endCallback;
             return this;
         }
     }

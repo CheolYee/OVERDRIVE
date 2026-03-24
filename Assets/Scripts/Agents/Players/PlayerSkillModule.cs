@@ -150,28 +150,6 @@ namespace Agents.Players
             }
         }
 
-        public void RemoveSkill(PlayerSkillDataSo skillData)
-        {
-            if (skillData == null)
-                return;
-
-            if (!_skillDict.TryGetValue(skillData.AssetIndex, out AbstractPlayerSkill skill))
-                return;
-
-            if (ShouldStoreKeyBinding(skill.BindingKey))
-            {
-                _keyBindDict.Remove(skill.BindingKey);
-            }
-
-            if (CurrentUsingSkill == skill)
-            {
-                CurrentUsingSkill = null;
-            }
-
-            _skillDict.Remove(skillData.AssetIndex);
-            Destroy(skill.gameObject);
-        }
-
         private static bool ShouldStoreKeyBinding(SkillKey bindKey)
         {
             return bindKey != SkillKey.NONE && bindKey != SkillKey.BASE_KEY;
